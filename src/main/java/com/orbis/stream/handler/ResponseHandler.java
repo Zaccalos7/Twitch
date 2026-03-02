@@ -1,0 +1,45 @@
+package com.orbis.stream.handler;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.context.MessageSource;
+import org.springframework.context.i18n.LocaleContextHolder;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+
+import java.util.HashMap;
+import java.util.Map;
+
+@RequiredArgsConstructor
+@Component
+public class ResponseHandler {
+    private final MessageSource messageSource;
+
+    public ResponseEntity<Map<String, String>> buildResponse(String code, HttpStatus status){
+        Map<String , String> response = new HashMap<>();
+
+        String localizedMessage = messageSource.getMessage(code, new Object[]{}, LocaleContextHolder.getLocale());
+        response.put("message", localizedMessage);
+
+        return new ResponseEntity<>(response, status);
+    }
+
+    public Map<String, String> buildBadResponse(String code){
+        Map<String , String> response = new HashMap<>();
+
+        String localizedMessage = messageSource.getMessage(code, new Object[]{}, LocaleContextHolder.getLocale());
+        response.put("error", localizedMessage);
+
+        return response;
+    }
+
+    public ResponseEntity<Map<String, String>> buildBadResponse(String code, HttpStatus status){
+        Map<String , String> response = new HashMap<>();
+
+        String localizedMessage = messageSource.getMessage(code, new Object[]{}, LocaleContextHolder.getLocale());
+        response.put("error", localizedMessage);
+
+        return new ResponseEntity<>(response, status);
+    }
+
+}
