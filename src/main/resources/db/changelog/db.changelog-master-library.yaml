@@ -1,0 +1,8 @@
+databaseChangeLog:
+  - include:
+      file: "classpath:db/changelog/db.2025_11_23_15_14_51_changelog.yml"
+  - include:
+      file: "classpath:db/changelog/db.2025_11_30_23_36_20_changelog.yml"
+  - include:
+      file: "classpath:db/changelog/db.2026_02_08_17_55_50_changelog.yml"
+
