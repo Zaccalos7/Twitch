@@ -5,3 +5,5 @@ databaseChangeLog:
       file: "db/changelog/db.2025_11_30_23_36_20_changelog.yml"
   - include:
       file: "db/changelog/db.2026_02_08_17_55_50_changelog.yml"
+  - include:
+      file: "db/changelog/db.2026_03_07_11_35_55_changelog.yml"
