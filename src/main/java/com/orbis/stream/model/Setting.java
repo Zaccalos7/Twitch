@@ -9,6 +9,11 @@ import lombok.*;
 @AllArgsConstructor
 @Builder
 @Entity
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"streamUrl", "streamKey"})
+        }
+)
 public class Setting {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

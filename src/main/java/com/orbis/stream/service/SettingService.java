@@ -2,6 +2,7 @@ package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.dto.SettingDto;
+import com.orbis.stream.exceptions.DuplicationEntityException;
 import com.orbis.stream.handler.ResponseHandler;
 import com.orbis.stream.mapping.SettingMapper;
 import com.orbis.stream.model.Setting;
@@ -45,6 +46,11 @@ public class SettingService {
 
     @Transactional
     private void saveSettings(SettingDto settingDto){
+        String streamKey = settingDto.getStreamKey();
+        String streamUrl = settingDto.getStreamUrl();
+
+        checkUniqueConstrain(streamKey, streamUrl);
+
         Setting setting = settingMapper.toModel(settingDto);
         User user = userRepository.findByNickName(nickName);
 
@@ -57,5 +63,19 @@ public class SettingService {
         setting.setUser(user);
         settingRepository.save(setting);
 
+    }
+
+    private void checkUniqueConstrain(String streamKey, String streamUrl) {
+        Setting setting = settingRepository.findByStreamUrlAndStreamKey(streamUrl, streamKey);
+
+        if(setting == null){
+            return;
+        }
+        log.error("setting.is.already.present");
+        throw new DuplicationEntityException("setting.is.already.present");
+    }
+
+    public ResponseEntity<Map<String, String>> modifySetting(SettingDto settingDto) {
+        return null;
     }
 }

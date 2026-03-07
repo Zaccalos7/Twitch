@@ -36,8 +36,12 @@ public class SettingController {
     @PutMapping("change")
     @Operation(summary = "Endpoint per la maodifica della configurazione di streaming, tutti i parametri sono required",
             description = "Restituisce l'esito dell'operazione")
-    public ResponseEntity<Map<String, String>> changeSettings(){
-        return null;
+    public ResponseEntity<Map<String, String>> changeSettings(@RequestBody SettingDto settingDto){
+        var response = settingService.modifySetting(settingDto);
+
+        log.info(loggerMessageComponent.printMessage("success.operations"));
+
+        return response;
     }
 
     @GetMapping("retrive")
