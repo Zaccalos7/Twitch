@@ -1,6 +1,8 @@
+server:
+  port: 1200
 spring:
   application:
-    name: cinema
+    name: stream
   logging:
     level:
       root: DEBUG
