@@ -1,24 +1,36 @@
 package com.orbis.stream.restController;
 
+import com.orbis.stream.component.LoggerMessageComponent;
+import com.orbis.stream.dto.SettingDto;
+import com.orbis.stream.service.SettingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @Slf4j
 @RequestMapping("/settings/")
 @Tag(name="Setting for streaming")
+@RequiredArgsConstructor
 public class SettingController {
+
+    private final SettingService settingService;
+    private final LoggerMessageComponent loggerMessageComponent;
 
     @PostMapping("save")
     @Operation(summary = "Endpoint per il salvataggio delle impostazioni dello streaming, tutti i parametri sono required",
             description = "Restituisce l'esito dell'operazione")
-    public ResponseEntity<Map<String, String>> saveSettings(){
-        return null;
+    public ResponseEntity<Map<String, String>> saveSettings(@RequestBody SettingDto settingDto){
+        var response = settingService.addNewConfiguration(settingDto);
+        log.info(loggerMessageComponent.printMessage("success.operations"));
+
+        return response;
     }
 
     @PutMapping("change")
@@ -31,7 +43,7 @@ public class SettingController {
     @GetMapping("retrive")
     @Operation(summary = "Endpoint per prendere tutte le configurazioni associate a quell'utente",
             description = "Restituisce la lista delle configurazioni dell'utente")
-    public ResponseEntity<Map<String, String>> retriveSettings(){
+    public List<SettingDto> retriveSettings(){
         return null;
     }
 }
