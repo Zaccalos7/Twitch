@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface SettingRepository extends JpaRepository<Setting, Integer> {
+    Setting findByStreamUrlAndStreamKey(String streamUrl, String StreamKey);
 }
