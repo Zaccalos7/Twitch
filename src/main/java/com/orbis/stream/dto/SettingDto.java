@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Builder
-public class RegisterDto {
+public class SettingDto {
     private String streamUrl;
 
     private String streamKey;
