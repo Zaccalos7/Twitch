@@ -16,7 +16,7 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer pkid;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String nickName;
 
     @OneToOne(cascade = CascadeType.ALL)
