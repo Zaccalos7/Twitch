@@ -1,12 +1,13 @@
 package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
-import com.orbis.stream.dto.SettingDto;
 import com.orbis.stream.exceptions.DuplicationEntityException;
 import com.orbis.stream.handler.ResponseHandler;
 import com.orbis.stream.mapping.SettingMapper;
+import com.orbis.stream.mapping.SettingRecordMapper;
 import com.orbis.stream.model.Setting;
 import com.orbis.stream.model.User;
+import com.orbis.stream.record.SettingRecord;
 import com.orbis.stream.repository.SettingRepository;
 import com.orbis.stream.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,27 +33,28 @@ public class SettingService {
     private final UserRepository userRepository;
 
     private final SettingMapper settingMapper;
+    private final SettingRecordMapper settingRecordMapper;
 
     //for now user is only mario
     private static final String nickName = "Mario";
 
-    public ResponseEntity<Map<String, String>> addNewConfiguration(SettingDto settingDto){
+    public ResponseEntity<Map<String, String>> addNewConfiguration(SettingRecord settingRecord){
         ResponseEntity<Map<String, String>>  mapResponseEntity = responseHandler
                 .buildResponse("success.operations", HttpStatus.CREATED);
 
-        saveSettings(settingDto);
+        saveSettings(settingRecord);
 
         return mapResponseEntity;
     }
 
     @Transactional
-    private void saveSettings(SettingDto settingDto){
-        String streamKey = settingDto.getStreamKey();
-        String streamUrl = settingDto.getStreamUrl();
+    private void saveSettings(SettingRecord settingRecord){
+        String streamKey = settingRecord.streamKey();
+        String streamUrl = settingRecord.streamUrl();
 
         checkUniqueConstrain(streamKey, streamUrl);
 
-        Setting setting = settingMapper.toModel(settingDto);
+        Setting setting = settingRecordMapper.toModel(settingRecord);
 
         //@TODO insert login and pass the real user
         User user = userRepository
@@ -77,7 +79,7 @@ public class SettingService {
         throw new DuplicationEntityException("setting.is.already.present");
     }
 
-    public ResponseEntity<Map<String, String>> modifySetting(SettingDto settingDto) {
+    public ResponseEntity<Map<String, String>> modifySetting(SettingRecord settingRecord) {
         return null;
     }
 }

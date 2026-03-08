@@ -2,6 +2,7 @@ package com.orbis.stream.restController;
 
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.dto.SettingDto;
+import com.orbis.stream.record.SettingRecord;
 import com.orbis.stream.service.SettingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,8 +27,8 @@ public class SettingController {
     @PostMapping("save")
     @Operation(summary = "Endpoint per il salvataggio delle impostazioni dello streaming, tutti i parametri sono required",
             description = "Restituisce l'esito dell'operazione")
-    public ResponseEntity<Map<String, String>> saveSettings(@RequestBody SettingDto settingDto){
-        var response = settingService.addNewConfiguration(settingDto);
+    public ResponseEntity<Map<String, String>> saveSettings(@RequestBody SettingRecord settingRecord){
+        var response = settingService.addNewConfiguration(settingRecord);
         log.info(loggerMessageComponent.printMessage("success.operations"));
 
         return response;
@@ -36,8 +37,8 @@ public class SettingController {
     @PutMapping("change")
     @Operation(summary = "Endpoint per la maodifica della configurazione di streaming, tutti i parametri sono required",
             description = "Restituisce l'esito dell'operazione")
-    public ResponseEntity<Map<String, String>> changeSettings(@RequestBody SettingDto settingDto){
-        var response = settingService.modifySetting(settingDto);
+    public ResponseEntity<Map<String, String>> changeSettings(@RequestBody SettingRecord settingRecord){
+        var response = settingService.modifySetting(settingRecord);
 
         log.info(loggerMessageComponent.printMessage("success.operations"));
 
