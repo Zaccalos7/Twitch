@@ -18,6 +18,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -52,13 +53,14 @@ public class SettingService {
         checkUniqueConstrain(streamKey, streamUrl);
 
         Setting setting = settingMapper.toModel(settingDto);
-        User user = userRepository.findByNickName(nickName);
 
         //@TODO insert login and pass the real user
-        if(user == null){
-            log.error(loggerMessageComponent.printMessage("Utente Mario non trovato"));
-            throw new EntityNotFoundException("Utente Mario non trovato");
-        }
+        User user = userRepository
+                .findByNickName(nickName)
+                .orElseThrow(()-> {
+                    log.error(loggerMessageComponent.printMessage("Utente Mario non trovato"));
+                    return new EntityNotFoundException("Utente Mario non trovato");
+                });
 
         setting.setUser(user);
         settingRepository.save(setting);
@@ -66,9 +68,9 @@ public class SettingService {
     }
 
     private void checkUniqueConstrain(String streamKey, String streamUrl) {
-        Setting setting = settingRepository.findByStreamUrlAndStreamKey(streamUrl, streamKey);
+        Optional<Setting> setting = settingRepository.findByStreamUrlAndStreamKey(streamUrl, streamKey);
 
-        if(setting == null){
+        if(setting.isEmpty()){
             return;
         }
         log.error("setting.is.already.present");

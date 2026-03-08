@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -60,8 +62,8 @@ public class RegisterService {
     }
 
     private void isNickNameAlreadyPresent(String nickName){
-        User user = userRepository.findByNickName(nickName);
-        if(user == null){
+        Optional<User> user = userRepository.findByNickName(nickName);
+        if(user.isEmpty()){
             return;
         }
         log.error(loggerMessageComponent.printMessage("nickname.is.already.present"));
