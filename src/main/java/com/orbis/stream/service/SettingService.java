@@ -2,6 +2,7 @@ package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.exceptions.DuplicationEntityException;
+import com.orbis.stream.exceptions.NotFoundCustomException;
 import com.orbis.stream.handler.ResponseHandler;
 import com.orbis.stream.mapping.SettingMapper;
 import com.orbis.stream.mapping.SettingRecordMapper;
@@ -69,6 +70,7 @@ public class SettingService {
 
     }
 
+
     private void checkUniqueConstrain(String streamKey, String streamUrl) {
         Optional<Setting> setting = settingRepository.findByStreamUrlAndStreamKey(streamUrl, streamKey);
 
@@ -79,7 +81,30 @@ public class SettingService {
         throw new DuplicationEntityException("setting.is.already.present");
     }
 
-    public ResponseEntity<Map<String, String>> modifySetting(SettingRecord settingRecord) {
+
+    public ResponseEntity<Map<String, String>> modifySetting(Integer id) {
         return null;
     }
+
+    public ResponseEntity<Map<String,String>> deleteAStreamingSetting(Integer id) {
+        ResponseEntity<Map<String, String>> mapResponseEntity = responseHandler.buildResponse("setting.delete",HttpStatus.OK);
+
+        checkIfSettingExistAndThenDeleteIt(id);
+
+        return mapResponseEntity;
+    }
+
+
+    @Transactional
+    private void checkIfSettingExistAndThenDeleteIt(Integer id) {
+        Setting setting = settingRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    log.error(loggerMessageComponent.printMessage("setting.not.found"));
+                    return new NotFoundCustomException("setting.not.found");
+                });
+
+        settingRepository.delete(setting);
+    }
+
 }

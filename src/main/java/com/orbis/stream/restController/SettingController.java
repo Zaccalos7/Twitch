@@ -35,10 +35,10 @@ public class SettingController {
     }
 
     @PutMapping("change")
-    @Operation(summary = "Endpoint per la maodifica della configurazione di streaming, tutti i parametri sono required",
+    @Operation(summary = "Endpoint per la modifica della configurazione di streaming, tutti i parametri sono required",
             description = "Restituisce l'esito dell'operazione")
-    public ResponseEntity<Map<String, String>> changeSettings(@RequestBody SettingRecord settingRecord){
-        var response = settingService.modifySetting(settingRecord);
+    public ResponseEntity<Map<String, String>> changeSettings(@RequestParam Integer id){
+        var response = settingService.modifySetting(id);
 
         log.info(loggerMessageComponent.printMessage("success.operations"));
 
@@ -50,5 +50,17 @@ public class SettingController {
             description = "Restituisce la lista delle configurazioni dell'utente")
     public List<SettingDto> retriveSettings(){
         return null;
+    }
+
+
+    @DeleteMapping("delete")
+    @Operation(summary = "Endpoint per la cancellazione della configurazione di streaming",
+            description = "Restituisce l'esito dell'operazione")
+    public ResponseEntity<Map<String, String>> deleteAStreamingSetting(@RequestParam Integer id){
+        var response = settingService.deleteAStreamingSetting(id);
+
+        log.info(loggerMessageComponent.printMessage("success.operations"));
+
+        return response;
     }
 }
