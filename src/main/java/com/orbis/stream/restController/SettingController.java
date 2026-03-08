@@ -2,6 +2,7 @@ package com.orbis.stream.restController;
 
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.dto.SettingDto;
+import com.orbis.stream.record.RegisterRecord;
 import com.orbis.stream.record.SettingRecord;
 import com.orbis.stream.service.SettingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -29,7 +30,7 @@ public class SettingController {
             description = "Restituisce l'esito dell'operazione")
     public ResponseEntity<Map<String, String>> saveSettings(@RequestBody SettingRecord settingRecord){
         var response = settingService.addNewConfiguration(settingRecord);
-        log.info(loggerMessageComponent.printMessage("success.operations"));
+        log.info(loggerMessageComponent.printMessage("setting.created"));
 
         return response;
     }
@@ -37,10 +38,10 @@ public class SettingController {
     @PutMapping("change")
     @Operation(summary = "Endpoint per la modifica della configurazione di streaming, tutti i parametri sono required",
             description = "Restituisce l'esito dell'operazione")
-    public ResponseEntity<Map<String, String>> changeSettings(@RequestParam Integer id){
-        var response = settingService.modifySetting(id);
+    public ResponseEntity<Map<String, String>> changeSettings(@RequestParam Integer id, @RequestBody SettingRecord settingRecord){
+        var response = settingService.modifySetting(id, settingRecord);
 
-        log.info(loggerMessageComponent.printMessage("success.operations"));
+        log.info(loggerMessageComponent.printMessage("setting.update"));
 
         return response;
     }
@@ -59,7 +60,7 @@ public class SettingController {
     public ResponseEntity<Map<String, String>> deleteAStreamingSetting(@RequestParam Integer id){
         var response = settingService.deleteAStreamingSetting(id);
 
-        log.info(loggerMessageComponent.printMessage("success.operations"));
+        log.info(loggerMessageComponent.printMessage("setting.delete"));
 
         return response;
     }
