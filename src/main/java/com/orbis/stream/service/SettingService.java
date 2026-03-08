@@ -9,7 +9,6 @@ import com.orbis.stream.mapping.SettingMapper;
 import com.orbis.stream.mapping.SettingRecordMapper;
 import com.orbis.stream.model.Setting;
 import com.orbis.stream.model.User;
-import com.orbis.stream.record.RegisterRecord;
 import com.orbis.stream.record.SettingRecord;
 import com.orbis.stream.repository.SettingRepository;
 import com.orbis.stream.repository.UserRepository;
