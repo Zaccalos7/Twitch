@@ -2,7 +2,6 @@ package com.orbis.stream.restController;
 
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.dto.SettingDto;
-import com.orbis.stream.record.RegisterRecord;
 import com.orbis.stream.record.SettingRecord;
 import com.orbis.stream.service.SettingService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -49,8 +48,8 @@ public class SettingController {
     @GetMapping("retrive")
     @Operation(summary = "Endpoint per prendere tutte le configurazioni associate a quell'utente",
             description = "Restituisce la lista delle configurazioni dell'utente")
-    public List<SettingDto> retriveSettings(){
-        return null;
+    public List<SettingDto> retriveSettings(@RequestParam Map<String, String> filtersMap){
+        return settingService.retrieveSettings(filtersMap);
     }
 
 

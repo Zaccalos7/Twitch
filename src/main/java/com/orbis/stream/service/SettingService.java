@@ -1,6 +1,7 @@
 package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
+import com.orbis.stream.dto.SettingDto;
 import com.orbis.stream.exceptions.DuplicationEntityException;
 import com.orbis.stream.exceptions.NotFoundCustomException;
 import com.orbis.stream.handler.ResponseHandler;
@@ -12,7 +13,9 @@ import com.orbis.stream.record.RegisterRecord;
 import com.orbis.stream.record.SettingRecord;
 import com.orbis.stream.repository.SettingRepository;
 import com.orbis.stream.repository.UserRepository;
+import com.orbis.stream.restController.filter.DynamicSpecificationBuilder;
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -84,6 +88,22 @@ public class SettingService {
         throw new DuplicationEntityException("setting.is.already.present");
     }
 
+    public List<SettingDto> retrieveSettings(Map<String, String> filtersMap) {
+
+        return retrieveSettingsWithFiltersOrNot(filtersMap);
+    }
+
+    @Transactional(readOnly = true)
+    public List<SettingDto> retrieveSettingsWithFiltersOrNot(Map<String, String> filtersMap){
+
+        Specification<Setting> dynamicFilteringSpecification =
+                DynamicSpecificationBuilder.buildSpecification(filtersMap);
+
+        return settingRepository.findAll(dynamicFilteringSpecification)
+                .stream()
+                .map(settingMapper::toDto)
+                .toList();
+    }
 
     public ResponseEntity<Map<String, String>> modifySetting(Integer id, SettingRecord settingRecord) {
         ResponseEntity<Map<String, String>> response;
