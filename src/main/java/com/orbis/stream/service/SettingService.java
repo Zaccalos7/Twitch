@@ -8,6 +8,7 @@ import com.orbis.stream.mapping.SettingMapper;
 import com.orbis.stream.mapping.SettingRecordMapper;
 import com.orbis.stream.model.Setting;
 import com.orbis.stream.model.User;
+import com.orbis.stream.record.RegisterRecord;
 import com.orbis.stream.record.SettingRecord;
 import com.orbis.stream.repository.SettingRepository;
 import com.orbis.stream.repository.UserRepository;
@@ -40,10 +41,12 @@ public class SettingService {
     private static final String nickName = "Mario";
 
     public ResponseEntity<Map<String, String>> addNewConfiguration(SettingRecord settingRecord){
-        ResponseEntity<Map<String, String>>  mapResponseEntity = responseHandler
-                .buildResponse("success.operations", HttpStatus.CREATED);
+        ResponseEntity<Map<String, String>>  mapResponseEntity;
 
         saveSettings(settingRecord);
+
+        mapResponseEntity = responseHandler
+                .buildResponse("setting.created", HttpStatus.CREATED);
 
         return mapResponseEntity;
     }
@@ -82,8 +85,27 @@ public class SettingService {
     }
 
 
-    public ResponseEntity<Map<String, String>> modifySetting(Integer id) {
-        return null;
+    public ResponseEntity<Map<String, String>> modifySetting(Integer id, SettingRecord settingRecord) {
+        ResponseEntity<Map<String, String>> response;
+
+        checkIfExistAndUpdateIt(id, settingRecord);
+
+        response = responseHandler.buildResponse("setting.update",HttpStatus.ACCEPTED);
+
+        return response;
+    }
+
+    @Transactional
+    private void checkIfExistAndUpdateIt(Integer id, SettingRecord settingRecord){
+        Setting setting = settingRepository
+                .findById(id)
+                .orElseThrow(() -> {
+                    log.error(loggerMessageComponent.printMessage("setting.not.found"));
+                    return new NotFoundCustomException("setting.not.found");
+                });
+        settingRecordMapper.updateSettingFromSettingRecord(settingRecord, setting);
+
+        settingRepository.save(setting);
     }
 
     public ResponseEntity<Map<String,String>> deleteAStreamingSetting(Integer id) {
