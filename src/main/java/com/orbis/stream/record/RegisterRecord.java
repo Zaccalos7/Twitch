@@ -1,4 +1,4 @@
-package com.orbis.stream.inputRequest;
+package com.orbis.stream.record;
 
 
 import jakarta.validation.constraints.NotEmpty;

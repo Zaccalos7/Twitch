@@ -4,7 +4,7 @@ import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.dto.CredentialDto;
 import com.orbis.stream.dto.UserDto;
 import com.orbis.stream.exceptions.DuplicationEntityException;
-import com.orbis.stream.inputRequest.RegisterRecord;
+import com.orbis.stream.record.RegisterRecord;
 import com.orbis.stream.mapping.CredentialMapper;
 import com.orbis.stream.mapping.UserMapper;
 import com.orbis.stream.model.Credential;
