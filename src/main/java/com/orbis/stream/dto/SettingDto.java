@@ -8,6 +8,8 @@ import lombok.Setter;
 @Setter
 @Builder
 public class SettingDto {
+    private Integer id;
+
     private String streamUrl;
 
     private String streamKey;
