@@ -19,6 +19,7 @@ public class ResponseHandler {
         Map<String , String> response = new HashMap<>();
 
         String localizedMessage = messageSource.getMessage(code, new Object[]{}, LocaleContextHolder.getLocale());
+        response.put("response", "success");
         response.put("message", localizedMessage);
 
         return new ResponseEntity<>(response, status);
@@ -28,7 +29,8 @@ public class ResponseHandler {
         Map<String , String> response = new HashMap<>();
 
         String localizedMessage = messageSource.getMessage(code, new Object[]{}, LocaleContextHolder.getLocale());
-        response.put("error", localizedMessage);
+        response.put("response", "error");
+        response.put("message", localizedMessage);
 
         return response;
     }
@@ -37,7 +39,8 @@ public class ResponseHandler {
         Map<String , String> response = new HashMap<>();
 
         String localizedMessage = messageSource.getMessage(code, new Object[]{}, LocaleContextHolder.getLocale());
-        response.put("error", localizedMessage);
+        response.put("response", "error");
+        response.put("message", localizedMessage);
 
         return new ResponseEntity<>(response, status);
     }
