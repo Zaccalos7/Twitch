@@ -45,4 +45,15 @@ public class ResponseHandler {
         return new ResponseEntity<>(response, status);
     }
 
+    /*
+        This method is useful when you’re dealing with an exception whose message can vary in many different ways
+     */
+    public ResponseEntity<Map<String, String>> buildBadResponseWithoutMessageLabel(String message){
+        Map<String, String> response = new HashMap<>();
+        response.put("response", "error");
+        response.put("message", message);
+
+        return new ResponseEntity<>(response,HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
 }

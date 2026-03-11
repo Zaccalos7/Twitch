@@ -48,10 +48,8 @@ public class ExceptionsHandler {
 
     @ExceptionHandler(SQLException.class)
     public ResponseEntity<Map<String, String>> handleException(SQLException ex){
-        Map<String, String> errorResponse;
         String errorMessage = ex.getLocalizedMessage();
-        errorResponse = responseHandler.buildBadResponse(errorMessage);
-        return ResponseEntity.badRequest().body(errorResponse);
+        return responseHandler.buildBadResponseWithoutMessageLabel(errorMessage);
     }
 
     @ExceptionHandler(FileReadingException.class)
