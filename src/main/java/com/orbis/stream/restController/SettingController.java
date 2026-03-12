@@ -49,6 +49,7 @@ public class SettingController {
     @Operation(summary = "Endpoint per prendere tutte le configurazioni associate a quell'utente",
             description = "Restituisce la lista delle configurazioni dell'utente")
     public List<SettingDto> retriveSettings(@RequestParam Map<String, String> filtersMap){
+        log.info(loggerMessageComponent.printMessage("retrieves.configurations"));
         return settingService.retrieveSettings(filtersMap);
     }
 
