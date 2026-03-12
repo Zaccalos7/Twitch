@@ -27,6 +27,9 @@ public class Setting {
 
     private String platformStreamName;
 
+    @Column(columnDefinition = "TEXT")
+    private String description;
+
     @ManyToOne
     private User user;
 }

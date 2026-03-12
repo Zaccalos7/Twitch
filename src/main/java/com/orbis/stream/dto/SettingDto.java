@@ -15,4 +15,6 @@ public class SettingDto {
     private String streamKey;
 
     private String platformStreamName;
+
+    private String description;
 }
