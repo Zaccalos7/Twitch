@@ -20,7 +20,7 @@ public class TaskManagerInfoComponent {
 
         Thread.sleep(500);
         double cpuLoad = cpu.getSystemCpuLoadBetweenTicks(prevTicks) * 100;
-        return  (int) cpuLoad * 100;
+        return  (int) cpuLoad;
 
     }
 
