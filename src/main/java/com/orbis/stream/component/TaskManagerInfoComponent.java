@@ -40,7 +40,7 @@ public class TaskManagerInfoComponent {
 
         long total = mem.getVirtualMemory().getSwapTotal();
         long used = mem.getVirtualMemory().getSwapUsed();
-        int swapPercent = (int) ((used * 100.0) / total)
+        int swapPercent = (int) ((used * 100.0) / total);
 
         return total == 0 ? 0 : swapPercent;
     }

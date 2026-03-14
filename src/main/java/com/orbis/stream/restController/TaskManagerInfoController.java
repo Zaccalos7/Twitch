@@ -49,7 +49,7 @@ public class TaskManagerInfoController {
     @Operation(summary = "Endpoint per le statistiche della temperatura della cpu del sistema os se disponibile",
             description = "Restituisce la percentuale di utilizzo")
     public int getCpuTemp() {
-        int valueOfCpuTemperature = taskManagerInfoComponent.getSwapPercent();
+        int valueOfCpuTemperature = taskManagerInfoComponent.getCpuTemp();
 
         if (valueOfCpuTemperature == 0) {
             log.warn(loggerMessageComponent.printMessage("cpu.temp.not.available"));
