@@ -1,6 +1,7 @@
 package com.orbis.stream.component;
 
 import com.orbis.stream.dto.SystemInfoDto;
+import com.orbis.stream.enums.SystemInfoEnum;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import oshi.SystemInfo;
@@ -22,18 +23,18 @@ public class TaskManagerInfoComponent {
         return List.of(
                 SystemInfoDto.builder()
                         .value(getCpuPercent())
-                        .field("cpu")
+                        .field("CPU")
                         .build(),
                 SystemInfoDto.builder()
-                        .field("ram")
+                        .field("RAM")
                         .value(getRamPercent())
                         .build(),
                 SystemInfoDto.builder()
                         .value(getSwapPercent())
-                        .field("swap")
+                        .field("SWAP")
                         .build(),
                 SystemInfoDto.builder()
-                        .field("cpuTemp")
+                        .field(SystemInfoEnum.CPU_TEMPERATURE.getInfoName())
                         .value( getCpuTemp())
                         .build()
         );
