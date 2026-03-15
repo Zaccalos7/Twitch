@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @Slf4j
 @RequestMapping("/taskManager/statistics/")
@@ -20,29 +22,41 @@ public class TaskManagerInfoController {
     private final TaskManagerInfoComponent taskManagerInfoComponent;
     private final LoggerMessageComponent loggerMessageComponent;
 
+    @GetMapping("system/info")
+    @Operation(summary = "Endpoint per tutte le statistiche del sistema os",
+            description = "Restituisce le percentuali di utilizzo")
+    public List<Integer> getAllSystemInfo() throws InterruptedException {
+        List<Integer> responseList;
+        responseList = taskManagerInfoComponent.getAllSystemInfo();
+        log.info("get.all.system.info");
+        return responseList;
+    }
 
     @GetMapping("cpu")
     @Operation(summary = "Endpoint per le statistiche delle cpu del sistema os",
             description = "Restituisce la percentuale di utilizzo")
     public int getCpuUsage() throws InterruptedException {
+        int cpuPercent = taskManagerInfoComponent.getCpuPercent();
         log.info(loggerMessageComponent.printMessage("get.cpu.info"));
-        return taskManagerInfoComponent.getCpuPercent();
+        return cpuPercent;
     }
 
     @GetMapping("ram")
     @Operation(summary = "Endpoint per le statistiche della RAM del sistema os",
             description = "Restituisce la percentuale di utilizzo")
     public int getRamUsage() {
+        int ramPercente = taskManagerInfoComponent.getRamPercent();
         log.info(loggerMessageComponent.printMessage("get.ram.info"));
-        return taskManagerInfoComponent.getRamPercent();
+        return ramPercente;
     }
 
     @GetMapping("swap")
     @Operation(summary = "Endpoint per le statistiche della SWAP del sistema os",
             description = "Restituisce la percentuale di utilizzo")
     public int getSwapPercent() {
+        int swapPercente = taskManagerInfoComponent.getSwapPercent();
         log.info(loggerMessageComponent.printMessage("get.swap.info"));
-        return taskManagerInfoComponent.getSwapPercent();
+        return swapPercente;
     }
 
     @GetMapping("cpu/temperature")
