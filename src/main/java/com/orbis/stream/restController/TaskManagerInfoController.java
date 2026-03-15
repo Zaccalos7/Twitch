@@ -29,7 +29,7 @@ public class TaskManagerInfoController {
     public List<SystemInfoDto> getAllSystemInfo() throws InterruptedException {
         List<SystemInfoDto> responseList;
         responseList = taskManagerInfoComponent.getAllSystemInfo();
-        log.info(loggerMessageComponent.printMessage("get.all.system.info"));
+        log.trace(loggerMessageComponent.printMessage("get.all.system.info"));
         return responseList;
     }
 
