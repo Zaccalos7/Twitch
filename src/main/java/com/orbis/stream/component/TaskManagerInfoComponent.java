@@ -1,5 +1,6 @@
 package com.orbis.stream.component;
 
+import com.orbis.stream.dto.SystemInfoDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import oshi.SystemInfo;
@@ -17,12 +18,24 @@ public class TaskManagerInfoComponent {
     private static final SystemInfo sistemInfo = new SystemInfo();
     private static final int NOT_FOUND = -1;
 
-    public List<Integer> getAllSystemInfo() throws InterruptedException {
+    public List<SystemInfoDto> getAllSystemInfo() throws InterruptedException {
         return List.of(
-                getCpuPercent(),
-                getRamPercent(),
-                getSwapPercent(),
-                getCpuTemp()
+                SystemInfoDto.builder()
+                        .value(getCpuPercent())
+                        .field("cpu")
+                        .build(),
+                SystemInfoDto.builder()
+                        .field("ram")
+                        .value(getRamPercent())
+                        .build(),
+                SystemInfoDto.builder()
+                        .value(getSwapPercent())
+                        .field("swap")
+                        .build(),
+                SystemInfoDto.builder()
+                        .field("cpuTemp")
+                        .value( getCpuTemp())
+                        .build()
         );
     }
 

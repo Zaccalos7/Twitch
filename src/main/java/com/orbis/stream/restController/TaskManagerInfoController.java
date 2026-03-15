@@ -2,6 +2,7 @@ package com.orbis.stream.restController;
 
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.component.TaskManagerInfoComponent;
+import com.orbis.stream.dto.SystemInfoDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +23,13 @@ public class TaskManagerInfoController {
     private final TaskManagerInfoComponent taskManagerInfoComponent;
     private final LoggerMessageComponent loggerMessageComponent;
 
-    @GetMapping("system/info")
+    @GetMapping("allInfo")
     @Operation(summary = "Endpoint per tutte le statistiche del sistema os",
             description = "Restituisce le percentuali di utilizzo")
-    public List<Integer> getAllSystemInfo() throws InterruptedException {
-        List<Integer> responseList;
+    public List<SystemInfoDto> getAllSystemInfo() throws InterruptedException {
+        List<SystemInfoDto> responseList;
         responseList = taskManagerInfoComponent.getAllSystemInfo();
-        log.info("get.all.system.info");
+        log.info(loggerMessageComponent.printMessage("get.all.system.info"));
         return responseList;
     }
 
