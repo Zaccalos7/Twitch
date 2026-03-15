@@ -8,11 +8,23 @@ import oshi.hardware.GlobalMemory;
 import oshi.hardware.Sensors;
 
 
+import java.util.List;
+
+
 @RequiredArgsConstructor
 @Component
 public class TaskManagerInfoComponent {
     private static final SystemInfo sistemInfo = new SystemInfo();
     private static final int NOT_FOUND = -1;
+
+    public List<Integer> getAllSystemInfo() throws InterruptedException {
+        return List.of(
+                getCpuPercent(),
+                getRamPercent(),
+                getSwapPercent(),
+                getCpuTemp()
+        );
+    }
 
     public int getCpuPercent() throws InterruptedException {
         CentralProcessor cpu = sistemInfo.getHardware().getProcessor();
