@@ -1,4 +1,4 @@
-package com.orbis.stream.restController;
+package com.orbis.stream.controller;
 
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.dto.SettingDto;

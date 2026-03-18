@@ -1,4 +1,4 @@
-package com.orbis.stream.restController.filter;
+package com.orbis.stream.controller.filter;
 
 import org.springframework.data.jpa.domain.Specification;
 

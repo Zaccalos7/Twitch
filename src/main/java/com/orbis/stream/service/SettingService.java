@@ -12,7 +12,7 @@ import com.orbis.stream.model.User;
 import com.orbis.stream.record.SettingRecord;
 import com.orbis.stream.repository.SettingRepository;
 import com.orbis.stream.repository.UserRepository;
-import com.orbis.stream.restController.filter.DynamicSpecificationBuilder;
+import com.orbis.stream.controller.filter.DynamicSpecificationBuilder;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
