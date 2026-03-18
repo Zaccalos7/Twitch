@@ -27,8 +27,8 @@ public class StreamController {
     private final StreamService streamService;
 
     @GetMapping("/start")
-    public ResponseEntity<Map<String,String>> startLive() throws FrameGrabber.Exception, FFmpegFrameRecorder.Exception {
-        var response = streamService.startLive();
+    public ResponseEntity<Map<String,String>> startLive() {
+        var response = streamService.startLive("/Users/zaccalos/Movies/input.mp4","live_1421368812_NOqfzzhID2sDFcdGgUwDOOmY7GOldJ");
         log.info("successo");
         return response;
     }
