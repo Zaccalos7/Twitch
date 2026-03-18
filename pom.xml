@@ -32,6 +32,7 @@
         <jjwt-impl>0.11.5</jjwt-impl>
         <jjwt-jackson>0.11.5</jjwt-jackson>
         <oshi-core>6.4.0</oshi-core>
+        <javacv-platform>1.5.13</javacv-platform>
     </properties>
     <dependencies>
         <dependency>
@@ -128,6 +129,12 @@
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
             <version>${oshi-core}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.bytedeco</groupId>
+            <artifactId>javacv-platform</artifactId>
+            <version>${javacv-platform}</version>
         </dependency>
 
     </dependencies>
