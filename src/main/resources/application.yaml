@@ -41,7 +41,7 @@ spring:
 springdoc:
   api-docs:
     path: /documentazione
-    packages-to-scan: com.orbis.stream.restController
+    packages-to-scan: com.orbis.stream.controller
     title: "Stream"
     version: "OPENAPI_3_0"
   swagger-ui:
