@@ -1,10 +1,10 @@
 package com.orbis.stream.record;
 
 public record VideoRecord(
-        int videoCodec,
-        int pixelFormat,
-        int videoBitrate,
-        int gopSize,
+        Integer videoCodec,
+        Integer pixelFormat,
+        Integer videoBitrate,
+        Integer gopSize,
         String[] videoOptions,
         String videoFormat,
         AudioRecord audioRecord
