@@ -13,7 +13,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class LiveVideoInfo {
+public class VideoLiveInformation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer pkid;

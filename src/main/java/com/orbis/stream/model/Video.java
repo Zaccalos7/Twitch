@@ -23,6 +23,6 @@ public class Video {
     private String streamPlatform;
 
     @OneToOne
-    private LiveVideoInfo liveVideoInfo;
+    private VideoLiveInformation videoLiveInformation;
 
 }
