@@ -13,3 +13,5 @@ databaseChangeLog:
       file: "db/changelog/db.2026_03_07_21_59_12_changelog.yml"
   - include:
       file: "db/changelog/db.2026_03_12_23_11_46_changelog.yml"
+  - include:
+      file: "db/changelog/db.2026_03_19_20_57_03_changelog.yml"
