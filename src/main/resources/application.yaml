@@ -3,6 +3,10 @@ server:
 spring:
   application:
     name: stream
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
   logging:
     level:
       root: DEBUG
