@@ -17,4 +17,6 @@ public class SettingDto {
     private String platformStreamName;
 
     private String description;
+
+    private String videoFolder;
 }

@@ -2,6 +2,7 @@ package com.orbis.stream.model;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 @Getter
 @Setter
@@ -29,6 +30,10 @@ public class Setting {
 
     @Column(columnDefinition = "TEXT")
     private String description;
+
+    @ColumnDefault("'/'")
+    @Column(nullable = false)
+    private String videoFolder;
 
     @ManyToOne
     private User user;
