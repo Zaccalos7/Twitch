@@ -5,7 +5,7 @@ public record VideoRecord(
         Integer pixelFormat,
         Integer videoBitrate,
         Integer gopSize,
-        String[] videoOptions,
+        VideoOptionRecord[] videoOptions,
         String videoFormat,
         AudioRecord audioRecord
 ) {
