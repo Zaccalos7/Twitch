@@ -1,6 +1,6 @@
 package com.orbis.stream.record;
 
-public record VideoRecord(
+public record VideoSettingsRecord(
         Integer videoCodec,
         Integer pixelFormat,
         Integer videoBitrate,
