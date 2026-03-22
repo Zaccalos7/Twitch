@@ -1,0 +1,82 @@
+databaseChangeLog:
+- changeSet:
+    id: 1774203561517-1
+    author: zaccalos (generated)
+    changes:
+    - addColumn:
+        columns:
+        - column:
+            defaultValueComputed: OFFLINE
+            name: live_status
+            type: smallint
+        tableName: video
+- changeSet:
+    id: 1774203561517-2
+    author: zaccalos (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: audio_setting_id
+        constraintName: UC_VIDEO_SETTINGAUDIO_SETTING_ID_COL
+        tableName: video_setting
+- changeSet:
+    id: 1774203561517-3
+    author: zaccalos (generated)
+    changes:
+    - addUniqueConstraint:
+        columnNames: name, extension, stream_platform
+        constraintName: UKipx6pv3euwiefu7ceuwn1jfm0
+        tableName: video
+- changeSet:
+    id: 1774203561517-4
+    author: zaccalos (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: audio_setting_id
+        baseTableName: video_setting
+        constraintName: FKaja1pt47uhaabtjxvj3onb8d9
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: audio_setting
+        validate: true
+- changeSet:
+    id: 1774203561517-5
+    author: zaccalos (generated)
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: video_setting_id
+        baseTableName: video_settings_options
+        constraintName: FKhaqymyoll0487age0gr69rg9l
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: video_setting
+        validate: true
+- changeSet:
+    id: 1774203561517-6
+    author: zaccalos (generated)
+    changes:
+    - dropUniqueConstraint:
+        constraintName: uc_videovideo_live_information_pkid_col
+        tableName: video
+- changeSet:
+    id: 1774203561517-7
+    author: zaccalos (generated)
+    changes:
+    - dropTable:
+        tableName: video_live_information
+- changeSet:
+    id: 1774203561517-8
+    author: zaccalos (generated)
+    changes:
+    - dropColumn:
+        columnName: duration_in_seconds
+        tableName: video
+- changeSet:
+    id: 1774203561517-9
+    author: zaccalos (generated)
+    changes:
+    - dropColumn:
+        columnName: video_live_information_pkid
+        tableName: video
+
