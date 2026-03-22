@@ -2,6 +2,7 @@ package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.handler.ResponseHandler;
+import com.orbis.stream.record.StartLiveRecord;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.ffmpeg.global.avcodec;
@@ -40,7 +41,8 @@ public class StreamService {
     private final TaskExecutor taskExecutor;
 
 
-    public ResponseEntity<Map<String, String>> startLive(String inputPath, String twitchStreamKey) {
+    public ResponseEntity<Map<String, String>> startLive(String inputPath, String twitchStreamKey, StartLiveRecord startLiveRecord) {
+
         String twitchUrl = "rtmp://live.twitch.tv/app/" + twitchStreamKey;
 
         try {
