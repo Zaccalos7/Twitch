@@ -1,0 +1,23 @@
+databaseChangeLog:
+- changeSet:
+    id: 1774221234155-1
+    author: zaccalos (generated)
+    changes:
+    - dropForeignKeyConstraint:
+        baseTableName: audio_setting
+        constraintName: FKi46fmaxfcjag8sybdwktgjkxp
+- changeSet:
+    id: 1774221234155-2
+    author: zaccalos (generated)
+    changes:
+    - dropUniqueConstraint:
+        constraintName: uc_audio_settingvideo_setting_id_col
+        tableName: audio_setting
+- changeSet:
+    id: 1774221234155-3
+    author: zaccalos (generated)
+    changes:
+    - dropColumn:
+        columnName: video_setting_id
+        tableName: audio_setting
+
