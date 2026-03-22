@@ -1,25 +1,23 @@
 package com.orbis.stream.model;
 
-import com.orbis.stream.enums.LiveStatusEnum;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import lombok.*;
 
-@Getter
-@Setter
 @Entity
 @Builder
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class VideoLiveInformation {
+public class AudioSetting {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer pkid;
+    private Integer id;
 
-    private LiveStatusEnum liveStatus;
-
-    private Long timestampOfLastFrameBeforeStopped;
-
+    private Integer audioCodec;
+    private Integer audioBitrate;
 }
