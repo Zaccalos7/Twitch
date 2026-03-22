@@ -1,9 +1,6 @@
 package com.orbis.stream.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
@@ -20,4 +17,7 @@ public class AudioSetting {
 
     private Integer audioCodec;
     private Integer audioBitrate;
+
+    @OneToOne(mappedBy = "audioSetting")
+    private VideoSetting videoSetting;
 }

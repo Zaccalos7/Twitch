@@ -30,7 +30,7 @@ public class Video {
     @Column(nullable = false)
     private String streamPlatform;
 
-    @ColumnDefault("OFFLINE")
+    @ColumnDefault("1")
     private LiveStatusEnum liveStatus;
 
 }
