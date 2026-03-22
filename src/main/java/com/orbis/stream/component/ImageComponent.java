@@ -2,13 +2,18 @@ package com.orbis.stream.component;
 
 import com.orbis.stream.exceptions.FileReadingException;
 import com.orbis.stream.handler.ResponseHandler;
+import com.orbis.stream.utilities.ImageUtilities;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -53,6 +58,50 @@ public class ImageComponent {
         } catch (Exception e) {
             log.error(loggerMessageComponent.printMessage("error.during.save.file"), e);
             throw new FileReadingException("error.during.save.file");
+        }
+
+    }
+
+    public ImageUtilities loadImage() {
+        File folder = new File("images");
+        if(!folder.isDirectory() || !folder.exists()){
+            log.error(loggerMessageComponent.printMessage("folder.not.found"));
+            throw new FileReadingException("folder.not.found");
+        }
+        return loadImageFromDirectory(folder);
+    }
+
+    private ImageUtilities loadImageFromDirectory(File folder) {
+        File[] files = folder.listFiles();
+
+        if (files == null || files.length == 0) {
+            log.error(loggerMessageComponent.printMessage("file.not.found"));
+            throw new FileReadingException("file.not.found");
+        }
+        File file = files[0];
+
+        try{
+            Path path = file.toPath().normalize();
+            Resource resource = new UrlResource(path.toUri());
+
+            if (!resource.exists() || !resource.isReadable()) {
+                log.error(loggerMessageComponent.printMessage("resource.not.found"));
+                throw new FileReadingException("resource.not.found");
+            }
+
+            String contentType = Files.probeContentType(path);
+            if (contentType == null)
+                contentType = "application/octet-stream";
+
+
+            return ImageUtilities
+                    .builder()
+                    .contentType(contentType)
+                    .resource(resource)
+                    .build();
+        }catch (IOException e){
+            log.error(loggerMessageComponent.printMessage("error.during.loading"), e);
+            throw new FileReadingException("error.during.loading");
         }
 
     }
