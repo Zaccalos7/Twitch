@@ -11,7 +11,7 @@ spring:
     level:
       root: DEBUG
     file:
-      name: logs/cinema.log
+      name: logs/twitch.log
   datasource:
     url: jdbc:postgresql://localhost:5432/stream
     username: postgres
