@@ -1,8 +1,10 @@
 package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
+import com.orbis.stream.dto.VideoSettingDto;
 import com.orbis.stream.handler.ResponseHandler;
-import com.orbis.stream.mapping.VideoSettingRecordMapper;
+import com.orbis.stream.mapping.mapperDTO.VideoSettingMapper;
+import com.orbis.stream.mapping.mapperRECORD.VideoSettingRecordMapper;
 import com.orbis.stream.model.VideoSetting;
 import com.orbis.stream.record.VideoSettingsRecord;
 import com.orbis.stream.repository.VideoSettingRepository;
@@ -13,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -21,7 +24,10 @@ import java.util.Map;
 public class VideoSettingService {
 
     private final VideoSettingRecordMapper videoSettingRecordMapper;
+    private final VideoSettingMapper videoSettingMapper;
+
     private final VideoSettingRepository videoSettingRepository;
+
     private final LoggerMessageComponent loggerMessageComponent;
     private final ResponseHandler responseHandler;
 
@@ -39,5 +45,15 @@ public class VideoSettingService {
     }
 
 
+    public List<VideoSettingDto> getAllVideoSettings() {
+        List<VideoSetting> videoSettingList = retrivesVideoSettings();
+        return videoSettingList.stream()
+                .map(videoSettingMapper::toDto)
+                .toList();
+    }
 
+    @Transactional(readOnly = true)
+    private List<VideoSetting> retrivesVideoSettings() {
+        return videoSettingRepository.findAll();
+    }
 }
