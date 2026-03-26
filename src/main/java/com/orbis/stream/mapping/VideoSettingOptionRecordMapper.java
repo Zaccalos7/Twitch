@@ -5,5 +5,5 @@ import com.orbis.stream.record.VideoOptionRecord;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface VideoSettingOptionMapper extends BaseMapper<VideoOptionRecord,VideoSettingsOption>{
+public interface VideoSettingOptionRecordMapper extends BaseMapper<VideoOptionRecord,VideoSettingsOption>{
 }

@@ -5,7 +5,7 @@ import com.orbis.stream.record.VideoSettingsRecord;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
-@Mapper(componentModel = "spring", uses = {AudioSettingRecordMapper.class, VideoSettingOptionMapper.class})
+@Mapper(componentModel = "spring", uses = {AudioSettingRecordMapper.class, VideoSettingOptionRecordMapper.class})
 public interface VideoSettingRecordMapper extends BaseMapper<VideoSettingsRecord, VideoSetting>{
     @Mapping(source = "audioSetting", target = "audioSettingRecord")
     @Mapping(source = "videoSettingsOptions", target = "videoOptions")
