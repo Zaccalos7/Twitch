@@ -7,6 +7,6 @@ public record VideoSettingsRecord(
         Integer gopSize,
         VideoOptionRecord[] videoOptions,
         String videoFormat,
-        AudioRecord audioRecord
+        AudioSettingsRecord audioSettingRecord
 ) {
 }

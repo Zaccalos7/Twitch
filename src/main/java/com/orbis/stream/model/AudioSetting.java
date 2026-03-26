@@ -18,6 +18,7 @@ public class AudioSetting {
     private Integer audioCodec;
     private Integer audioBitrate;
 
+
     @OneToOne(mappedBy = "audioSetting")
     private VideoSetting videoSetting;
 }
