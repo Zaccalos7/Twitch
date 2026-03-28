@@ -128,11 +128,9 @@ public class SettingService {
     }
 
     public ResponseEntity<Map<String,String>> deleteAStreamingSetting(Integer id) {
-        ResponseEntity<Map<String, String>> mapResponseEntity = responseHandler.buildResponse("setting.delete",HttpStatus.OK);
-
         checkIfSettingExistAndThenDeleteIt(id);
 
-        return mapResponseEntity;
+        return responseHandler.buildResponse("setting.delete",HttpStatus.OK);
     }
 
 
