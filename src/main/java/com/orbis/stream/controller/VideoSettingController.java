@@ -24,6 +24,7 @@ public class VideoSettingController {
     private final VideoSettingService videoSettingService;
 
     @GetMapping("getVideoSettings")
+    @Operation(description = "restituisce tutti i setting per lo streaming video")
     public List<VideoSettingDto> getAllVideoSettings(){
         var response = videoSettingService.getAllVideoSettings();
         log.info(loggerMessageComponent.printMessage("got.video.settings"));
