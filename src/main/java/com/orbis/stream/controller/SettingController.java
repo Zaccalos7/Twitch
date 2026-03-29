@@ -3,6 +3,7 @@ package com.orbis.stream.controller;
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.dto.SettingDto;
 import com.orbis.stream.record.SettingRecord;
+import com.orbis.stream.record.output.VideoPathRecord;
 import com.orbis.stream.service.SettingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -53,7 +54,6 @@ public class SettingController {
         return settingService.retrieveSettings(filtersMap);
     }
 
-
     @DeleteMapping("delete")
     @Operation(summary = "Endpoint per la cancellazione della configurazione di streaming",
             description = "Restituisce l'esito dell'operazione")
@@ -63,5 +63,14 @@ public class SettingController {
         log.info(loggerMessageComponent.printMessage("setting.delete"));
 
         return response;
+    }
+
+
+    @GetMapping("retrive-directories-path")
+    @Operation(summary = "Endpoint per prendere tutti i path collegati alle configurazioni dell'utente",
+            description = "Restituisce la lista delle configurazioni dell'utente")
+    public List<VideoPathRecord> retriveDirectoriesSettingsPath(@RequestParam Map<String, String> filtersMap){
+        log.info(loggerMessageComponent.printMessage("retrieves.configurations"));
+        return settingService.retrieveDirectoriesSettingsPath(filtersMap);
     }
 }

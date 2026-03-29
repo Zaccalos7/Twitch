@@ -10,6 +10,7 @@ import com.orbis.stream.mapping.mapperRECORD.SettingRecordMapper;
 import com.orbis.stream.model.Setting;
 import com.orbis.stream.model.User;
 import com.orbis.stream.record.SettingRecord;
+import com.orbis.stream.record.output.VideoPathRecord;
 import com.orbis.stream.repository.SettingRepository;
 import com.orbis.stream.repository.UserRepository;
 import com.orbis.stream.controller.filter.DynamicSpecificationBuilder;
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -144,6 +146,26 @@ public class SettingService {
                 });
 
         settingRepository.delete(setting);
+    }
+
+    public List<VideoPathRecord> retrieveDirectoriesSettingsPath(Map<String, String> filtersMap) {
+
+         List<SettingDto> settingDtoList = retrieveSettingsWithFiltersOrNot(filtersMap);
+         List<VideoPathRecord> DirectoriesPathList = settingDtoList
+                 .stream()
+                 .map(settingDto -> {
+                    String videoPath = settingDto.getVideoFolder();
+                    Boolean isAdirectory = isADirectory(videoPath);
+                    return new VideoPathRecord(videoPath, isAdirectory);
+                 })
+                 .toList();
+         log.trace(loggerMessageComponent.printMessage("retrive.directories.path"));
+         return DirectoriesPathList;
+    }
+
+    private Boolean isADirectory(String directoriesPath){
+        File file = new File(directoriesPath);
+        return file.isDirectory();
     }
 
 }
