@@ -2,6 +2,7 @@ package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.dto.VideoSettingDto;
+import com.orbis.stream.exceptions.NotFoundCustomException;
 import com.orbis.stream.handler.ResponseHandler;
 import com.orbis.stream.mapping.mapperDTO.VideoSettingMapper;
 import com.orbis.stream.mapping.mapperRECORD.VideoSettingRecordMapper;
@@ -55,5 +56,26 @@ public class VideoSettingService {
     @Transactional(readOnly = true)
     private List<VideoSetting> retrivesVideoSettings() {
         return videoSettingRepository.findAll();
+    }
+
+    public ResponseEntity<Map<String,String>> editSettingsVideo(VideoSettingsRecord videoSettingsRecord, Integer id){
+        editVideoSetting(videoSettingsRecord, id);
+        log.info(loggerMessageComponent.printMessage("video.settings.modified"));
+
+        return responseHandler.buildResponse("video.settings.modified", HttpStatus.CREATED);
+    }
+
+    @Transactional
+    private void editVideoSetting(VideoSettingsRecord videoSettingsRecord, Integer id) {
+        checkIfVideoSettingExist(id);
+        VideoSetting videoSetting = videoSettingRecordMapper.toModel(videoSettingsRecord);
+        videoSettingRepository.save(videoSetting);
+    }
+
+    private void checkIfVideoSettingExist(Integer id){
+        videoSettingRepository.findById(id).orElseThrow(()->{
+            log.error(loggerMessageComponent.printMessage("video.settings.not.found"));
+            return new NotFoundCustomException("video.settings.not.found");
+        });
     }
 }

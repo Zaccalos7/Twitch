@@ -5,6 +5,7 @@ import com.orbis.stream.dto.VideoSettingDto;
 import com.orbis.stream.record.VideoSettingsRecord;
 import com.orbis.stream.service.VideoSettingService;
 import io.swagger.v3.oas.annotations.Operation;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -36,4 +37,11 @@ public class VideoSettingController {
     public ResponseEntity<Map<String,String>> saveVideoSettings(@RequestBody VideoSettingsRecord videoSettingsRecord){
         return videoSettingService.saveSettingsVideo(videoSettingsRecord);
     }
+
+    @PutMapping("edit")
+    @Operation(summary = "modifica della configurazione del video")
+    public ResponseEntity<Map<String,String>> editVideoSettings(@NotNull(message = "input.not.valid") @RequestParam Integer id, @NotNull(message = "input.not.valid") @RequestBody VideoSettingsRecord videoSettingsRecord){
+        return videoSettingService.editSettingsVideo(videoSettingsRecord, id);
+    }
+
 }
