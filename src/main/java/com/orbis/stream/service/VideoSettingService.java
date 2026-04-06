@@ -58,17 +58,17 @@ public class VideoSettingService {
         return videoSettingRepository.findAll();
     }
 
-    public ResponseEntity<Map<String,String>> editSettingsVideo(VideoSettingsRecord videoSettingsRecord, Integer id){
-        editVideoSetting(videoSettingsRecord, id);
+    public ResponseEntity<Map<String,String>> editSettingsVideo(VideoSettingDto videoSettingDto, Integer id){
+        editVideoSetting(videoSettingDto, id);
         log.info(loggerMessageComponent.printMessage("video.settings.modified"));
 
         return responseHandler.buildResponse("video.settings.modified", HttpStatus.CREATED);
     }
 
     @Transactional
-    private void editVideoSetting(VideoSettingsRecord videoSettingsRecord, Integer id) {
+    private void editVideoSetting(VideoSettingDto videoSettingDto, Integer id) {
         checkIfVideoSettingExist(id);
-        VideoSetting videoSetting = videoSettingRecordMapper.toModel(videoSettingsRecord);
+        VideoSetting videoSetting = videoSettingMapper.toModel(videoSettingDto);
         videoSettingRepository.save(videoSetting);
     }
 

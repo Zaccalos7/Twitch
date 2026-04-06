@@ -40,8 +40,10 @@ public class VideoSettingController {
 
     @PutMapping("edit")
     @Operation(summary = "modifica della configurazione del video")
-    public ResponseEntity<Map<String,String>> editVideoSettings(@NotNull(message = "input.not.valid") @RequestParam Integer id, @NotNull(message = "input.not.valid") @RequestBody VideoSettingsRecord videoSettingsRecord){
-        return videoSettingService.editSettingsVideo(videoSettingsRecord, id);
+    public ResponseEntity<Map<String,String>> editVideoSettings(
+            @NotNull(message = "input.not.valid") @RequestParam Integer id,
+            @NotNull(message = "input.not.valid") @RequestBody VideoSettingDto videoSettingDto){
+        return videoSettingService.editSettingsVideo(videoSettingDto, id);
     }
 
 }
