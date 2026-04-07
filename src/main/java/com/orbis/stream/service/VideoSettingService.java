@@ -9,6 +9,7 @@ import com.orbis.stream.mapping.mapperRECORD.VideoSettingRecordMapper;
 import com.orbis.stream.model.VideoSetting;
 import com.orbis.stream.record.VideoSettingsRecord;
 import com.orbis.stream.repository.VideoSettingRepository;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -82,5 +83,15 @@ public class VideoSettingService {
             log.error(loggerMessageComponent.printMessage("video.settings.not.found"));
             return new NotFoundCustomException("video.settings.not.found");
         });
+    }
+
+    public ResponseEntity<Map<String, String>> deleteVideoSetting(Integer id) {
+        deleteById(id);
+        log.info(loggerMessageComponent.printMessage("delete.successful"));
+        return responseHandler.buildResponse("delete.successful", HttpStatus.OK);
+    }
+
+    private void deleteById(Integer id){
+        videoSettingRepository.deleteById(id);
     }
 }
