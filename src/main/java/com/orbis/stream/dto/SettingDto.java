@@ -4,6 +4,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
+
 @Getter
 @Setter
 @Builder
@@ -19,4 +22,7 @@ public class SettingDto {
     private String description;
 
     private String videoFolder;
+
+    private LocalDateTime lastModified;
+
 }

@@ -3,7 +3,9 @@ package com.orbis.stream.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
+
 
 @Entity
 @Builder
@@ -22,6 +24,7 @@ public class VideoSetting {
     private Integer videoBitrate;
     private Integer gopSize;
     private String videoFormat;
+    private LocalDateTime lastModified;
 
     @ElementCollection
     @CollectionTable(
