@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,8 @@ public class VideoSettingService {
     @Transactional
     private void mappingAndSaveValue(VideoSettingsRecord videoSettingsRecord){
         VideoSetting videoSetting =  videoSettingRecordMapper.toModel(videoSettingsRecord);
+        LocalDateTime localDate = LocalDateTime.now();
+        videoSetting.setLastModified(localDate);
         videoSettingRepository.save(videoSetting);
     }
 
@@ -55,7 +58,7 @@ public class VideoSettingService {
 
     @Transactional(readOnly = true)
     private List<VideoSetting> retrivesVideoSettings() {
-        return videoSettingRepository.findAll();
+        return videoSettingRepository.findAllByOrderByLastModifiedDesc();
     }
 
     public ResponseEntity<Map<String,String>> editSettingsVideo(VideoSettingDto videoSettingDto, Integer id){
@@ -69,6 +72,8 @@ public class VideoSettingService {
     private void editVideoSetting(VideoSettingDto videoSettingDto, Integer id) {
         checkIfVideoSettingExist(id);
         VideoSetting videoSetting = videoSettingMapper.toModel(videoSettingDto);
+        LocalDateTime localDate = LocalDateTime.now();
+        videoSetting.setLastModified(localDate);
         videoSettingRepository.save(videoSetting);
     }
 
