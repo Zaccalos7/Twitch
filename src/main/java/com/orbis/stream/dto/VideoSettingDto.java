@@ -17,6 +17,7 @@ public class VideoSettingDto {
     private Integer videoBitrate;
     private Integer gopSize;
     private String videoFormat;
+    private Boolean isVideoAndAudioSettingActive;
 
 
     private List<VideoSettingsOptionDto> videoSettingsOptions;
