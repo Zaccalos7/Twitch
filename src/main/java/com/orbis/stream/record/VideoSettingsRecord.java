@@ -10,8 +10,7 @@ public record VideoSettingsRecord(
         Integer gopSize,
         LocalDateTime lastModified,
         Boolean isVideoAndAudioSettingActive,
-
-                VideoOptionRecord[] videoOptions,
+        VideoOptionRecord[] videoOptions,
         String videoFormat,
         AudioSettingsRecord audioSettingRecord
 ) {

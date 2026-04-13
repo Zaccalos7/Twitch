@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -26,16 +27,16 @@ public class VideoSettingController {
 
     @GetMapping("getVideoSettings")
     @Operation(description = "restituisce tutti i setting per lo streaming video")
-    public List<VideoSettingDto> getAllVideoSettings(){
-        var response = videoSettingService.getAllVideoSettings();
+    public List<VideoSettingDto> getAllVideoSettings(@RequestParam Map<String, String> filtersMap){
+        var response = videoSettingService.getAllVideoSettings(filtersMap);
         log.info(loggerMessageComponent.printMessage("got.video.settings"));
         return response;
     }
 
     @PostMapping("save")
     @Operation(summary = "creazione della configurazione del video")
-    public ResponseEntity<Map<String,String>> saveVideoSettings(@RequestBody VideoSettingsRecord videoSettingsRecord){
-        return videoSettingService.saveSettingsVideo(videoSettingsRecord);
+    public ResponseEntity<Map<String,String>> saveVideoSettings(@RequestBody VideoSettingDto videoSettingDto){
+        return videoSettingService.saveSettingsVideo(videoSettingDto);
     }
 
     @PutMapping("edit")
