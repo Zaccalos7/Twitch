@@ -53,6 +53,12 @@ public class ImageComponent {
             // i don't save more than one image, if you put another image i overwrite it
             Path filePath = uploadPath.resolve(IMAGE_NAME + "." + extension);
 
+            //delete previous image, maybe the dot of image change and when i replace i didn't delete or
+            //retrieve the correct image
+            var previousImage = loadImage();
+            Path pathOfPreviousImage  = previousImage.getResource().getFile().toPath();
+            Files.deleteIfExists(pathOfPreviousImage);
+
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
         } catch (Exception e) {

@@ -1,6 +1,6 @@
 package com.orbis.stream.record;
 
-public record AudioRecord(
+public record AudioSettingsRecord(
         Integer audioCodec,
         Integer audioBitrate
 ) {

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @Slf4j
@@ -26,12 +27,38 @@ public class StreamController {
 
     private final StreamService streamService;
 
+
+    /*
+    {
+  "streamUrl": "rtmp://live.twitch.tv/app/",
+  "streamKey": "live_1421368812_NOqfzzhID2sDFcdGgUwDOOmY7GOldJ",
+  "platformStreamName": "/Users/zaccalos/Movies/input.mp4",
+  "videoSettingsRecord": {
+    "videoCodec": null,
+    "pixelFormat": null,
+    "videoBitrate": null,
+    "gopSize": null,
+    "videoOptions": [
+      {
+        "key":"preset",
+        "value":"veryfast"
+      }
+    ],
+    "videoFormat": "flv",
+    "audioRecord": {
+      "audioCodec": null,
+      "audioBitrate": null
+    }
+  }
+}
+     */
     @GetMapping("/start")
     @Operation(summary = "Endpoint per lo start della live",
             description = "Restituisce l'esito dell'operazione")
     public ResponseEntity<Map<String,String>> startLive(@RequestBody StartLiveRecord startLiveRecord) {
-        var response = streamService.startLive("/Users/zaccalos/Movies/input.mp4","live_1421368812_NOqfzzhID2sDFcdGgUwDOOmY7GOldJ");
-        log.info("successo");
+
+        var response = streamService.startLive("/Users/zaccalos/Movies/live/input.mp4","live_1421368812_NOqfzzhID2sDFcdGgUwDOOmY7GOldJ", startLiveRecord);
         return response;
     }
+
 }

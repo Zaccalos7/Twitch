@@ -1,12 +1,17 @@
 package com.orbis.stream.record;
 
-public record VideoRecord(
+import java.time.LocalDateTime;
+
+
+public record VideoSettingsRecord(
         Integer videoCodec,
         Integer pixelFormat,
         Integer videoBitrate,
         Integer gopSize,
+        LocalDateTime lastModified,
+        Boolean isVideoAndAudioSettingActive,
         VideoOptionRecord[] videoOptions,
         String videoFormat,
-        AudioRecord audioRecord
+        AudioSettingsRecord audioSettingRecord
 ) {
 }
