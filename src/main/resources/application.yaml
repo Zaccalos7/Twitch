@@ -1,6 +1,12 @@
+server:
+  port: 1200
 spring:
   application:
-    name: cinema
+    name: stream
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
   logging:
     level:
       root: DEBUG
@@ -39,7 +45,7 @@ spring:
 springdoc:
   api-docs:
     path: /documentazione
-    packages-to-scan: com.orbis.stream.restController
+    packages-to-scan: com.orbis.stream.controller
     title: "Stream"
     version: "OPENAPI_3_0"
   swagger-ui:
