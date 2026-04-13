@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+
 @RestController
 @Slf4j
 @RequestMapping("/settings/")
@@ -57,7 +58,7 @@ public class SettingController {
     @DeleteMapping("delete")
     @Operation(summary = "Endpoint per la cancellazione della configurazione di streaming",
             description = "Restituisce l'esito dell'operazione")
-    public ResponseEntity<Map<String, String>> deleteAStreamingSetting(@RequestParam Integer id){
+    public ResponseEntity<Map<String, String>> deleteAStreamingSetting(@RequestBody Integer id){
         var response = settingService.deleteAStreamingSetting(id);
 
         log.info(loggerMessageComponent.printMessage("setting.delete"));
