@@ -49,7 +49,7 @@ public class VideoSettingController {
 
     @DeleteMapping("delete")
     @Operation(summary = "cancella un setting audio-video")
-    public ResponseEntity<Map<String, String>> deleteVideoSetting(@NotNull @RequestParam Integer id){
+    public ResponseEntity<Map<String, String>> deleteVideoSetting(@NotNull @RequestBody Integer id){
         return videoSettingService.deleteVideoSetting(id);
     }
 
