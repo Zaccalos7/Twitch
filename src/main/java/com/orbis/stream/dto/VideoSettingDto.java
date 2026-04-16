@@ -12,6 +12,7 @@ import java.util.List;
 public class VideoSettingDto {
     private Integer id;
 
+    private String title;
     private Integer videoCodec;
     private Integer pixelFormat;
     private Integer videoBitrate;

@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 
 public record VideoSettingsRecord(
+        String title,
         Integer videoCodec,
         Integer pixelFormat,
         Integer videoBitrate,

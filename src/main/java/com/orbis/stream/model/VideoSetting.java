@@ -21,6 +21,9 @@ public class VideoSetting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+
+    private String title;
+
     private Integer videoCodec;
     private Integer pixelFormat;
     private Integer videoBitrate;
