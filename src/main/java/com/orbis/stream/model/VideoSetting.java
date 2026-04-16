@@ -21,7 +21,7 @@ public class VideoSetting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-
+    @Column(columnDefinition = "varchar(255) default 'Title'")
     private String title;
 
     private Integer videoCodec;
