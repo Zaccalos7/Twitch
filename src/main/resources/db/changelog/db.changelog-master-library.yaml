@@ -25,3 +25,7 @@ databaseChangeLog:
       file: "classpath:db/changelog/db.2026_04_06_00_33_23_changelog.yml"
   - include:
       file: "classpath:db/changelog/db.2026_04_11_12_59_03_changelog.yml"
+  - include:
+      file: "classpath:db/changelog/db.2026_04_16_10_35_09_changelog.yml"
+  - include:
+      file: "classpath:db/changelog/db.2026_04_16_20_01_14_changelog.yml"
