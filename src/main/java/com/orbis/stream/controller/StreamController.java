@@ -52,7 +52,17 @@ public class StreamController {
   }
 }
      */
-    @GetMapping("/start")
+//    @GetMapping("/start")
+//    @Operation(summary = "Endpoint per lo start della live",
+//            description = "Restituisce l'esito dell'operazione")
+//    public ResponseEntity<Map<String,String>> startLive(@RequestBody StartLiveRecord startLiveRecord) {
+//
+//        var response = streamService.startLive("/Users/zaccalos/Movies/live/input.mp4","live_1421368812_NOqfzzhID2sDFcdGgUwDOOmY7GOldJ", startLiveRecord);
+//        return response;
+//    }
+
+
+    @GetMapping("/start-live")
     @Operation(summary = "Endpoint per lo start della live",
             description = "Restituisce l'esito dell'operazione")
     public ResponseEntity<Map<String,String>> startLive(@RequestBody StartLiveRecord startLiveRecord) {
