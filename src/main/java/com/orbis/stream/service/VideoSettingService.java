@@ -8,7 +8,6 @@ import com.orbis.stream.handler.ResponseHandler;
 import com.orbis.stream.mapping.mapperDTO.VideoSettingMapper;
 import com.orbis.stream.mapping.mapperRECORD.VideoSettingRecordMapper;
 import com.orbis.stream.model.VideoSetting;
-import com.orbis.stream.record.VideoSettingsRecord;
 import com.orbis.stream.repository.VideoSettingRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
