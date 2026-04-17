@@ -25,4 +25,6 @@ public class SettingDto {
 
     private LocalDateTime lastModified;
 
+    private Boolean isActive;
+
 }
