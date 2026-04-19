@@ -113,5 +113,9 @@ public class StreamService {
             if (grabber != null) grabber.stop();
         } catch (Exception ignored) {}
     }
+
+    public ResponseEntity<Map<String, String>> startLiveTest(){
+        return responseHandler.buildResponse("live.started", HttpStatus.ACCEPTED);
+    }
 }
 
