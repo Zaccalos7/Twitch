@@ -8,8 +8,6 @@ public record StartLiveRecord(
         @NotNull(message = "not.valid.input")
         String streamKey,
         @NotNull(message = "not.valid.input")
-        String platformStreamName,
-        @NotNull(message = "not.valid.input")
         String videoPath,
         VideoSettingsRecord videoSettingsRecord
 ) {

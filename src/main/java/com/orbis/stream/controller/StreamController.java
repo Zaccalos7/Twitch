@@ -8,10 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -62,12 +59,13 @@ public class StreamController {
 //    }
 
 
-    @GetMapping("/start-live")
+    @PostMapping("/start-live")
     @Operation(summary = "Endpoint per lo start della live",
             description = "Restituisce l'esito dell'operazione")
     public ResponseEntity<Map<String,String>> startLive(@RequestBody StartLiveRecord startLiveRecord) {
 
-        var response = streamService.startLive("/Users/zaccalos/Movies/live/input.mp4","live_1421368812_NOqfzzhID2sDFcdGgUwDOOmY7GOldJ", startLiveRecord);
+        var response = streamService.startLiveTest();
+        log.info(loggerMessageComponent.printMessage("live.started"));
         return response;
     }
 
