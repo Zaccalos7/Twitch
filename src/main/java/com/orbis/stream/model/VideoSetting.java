@@ -27,7 +27,6 @@ public class VideoSetting {
     private Integer videoCodec;
     private Integer pixelFormat;
     private Integer videoBitrate;
-    private Integer gopSize;
     private String videoFormat;
     private LocalDateTime lastModified;
 

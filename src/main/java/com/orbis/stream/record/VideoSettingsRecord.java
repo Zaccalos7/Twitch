@@ -8,7 +8,6 @@ public record VideoSettingsRecord(
         Integer videoCodec,
         Integer pixelFormat,
         Integer videoBitrate,
-        Integer gopSize,
         LocalDateTime lastModified,
         Boolean isVideoAndAudioSettingActive,
         VideoOptionRecord[] videoOptions,
