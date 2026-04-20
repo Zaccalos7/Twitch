@@ -1,6 +1,7 @@
 package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
+import com.orbis.stream.enums.VideoExtensionEnum;
 import com.orbis.stream.handler.ResponseHandler;
 import com.orbis.stream.record.StartLiveRecord;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +14,10 @@ import org.bytedeco.javacv.Frame;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.Map;
 
 /*
@@ -114,8 +116,36 @@ public class StreamService {
         } catch (Exception ignored) {}
     }
 
-    public ResponseEntity<Map<String, String>> startLiveTest(){
+    public ResponseEntity<Map<String, String>> startLiveTest(StartLiveRecord startLiveRecord){
+
+        String videoPathFolder = startLiveRecord.videoPath();
+        saveVideoPaths(videoPathFolder);
+        
         return responseHandler.buildResponse("live.started", HttpStatus.ACCEPTED);
+    }
+
+    private void saveVideoPaths(String videoPathFolder) {
+        File videoFile = Paths.get(videoPathFolder).toFile();
+
+        if(videoFile.isDirectory()) {
+            saveAllVideoPaths(videoFile);
+        }else{
+            saveOneVideoPaths(videoFile);
+        }
+    }
+
+    private void saveAllVideoPaths(File videoFile){
+
+        File[] videoList = videoFile.listFiles(pathname -> {
+            String fileName = pathname.getName();
+            String[] splitResult = fileName.split("\\.");
+            return VideoExtensionEnum.isVideoExtensionPresent(splitResult[1]);
+        });
+        log.info("io");
+    }
+
+    private void saveOneVideoPaths(File videoFile){
+
     }
 }
 

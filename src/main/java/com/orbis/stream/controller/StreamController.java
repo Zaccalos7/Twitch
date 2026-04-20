@@ -64,7 +64,7 @@ public class StreamController {
             description = "Restituisce l'esito dell'operazione")
     public ResponseEntity<Map<String,String>> startLive(@RequestBody StartLiveRecord startLiveRecord) {
 
-        var response = streamService.startLiveTest();
+        var response = streamService.startLiveTest(startLiveRecord);
         log.info(loggerMessageComponent.printMessage("live.started"));
         return response;
     }
