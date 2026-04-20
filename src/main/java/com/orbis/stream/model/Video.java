@@ -13,7 +13,7 @@ import org.hibernate.annotations.ColumnDefault;
 @AllArgsConstructor
 @Table(
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name", "extension", "streamPlatform"})
+                @UniqueConstraint(columnNames = {"name", "extension", "videoPath"})
         }
 )
 public class Video {
@@ -25,12 +25,15 @@ public class Video {
     private String name;
 
     @Column(nullable = false)
-    private String extension;
+    private String videoPath;
 
     @Column(nullable = false)
-    private String streamPlatform;
+    private String extension;
 
     @ColumnDefault("1")
     private LiveStatusEnum liveStatus;
+
+    @ColumnDefault("0")
+    private Long lastTimeStampBeforeStop;
 
 }
