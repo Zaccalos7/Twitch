@@ -1,9 +1,16 @@
 package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
+import com.orbis.stream.enums.LiveStatusEnum;
 import com.orbis.stream.enums.VideoExtensionEnum;
+import com.orbis.stream.exceptions.NotFoundCustomException;
 import com.orbis.stream.handler.ResponseHandler;
+import com.orbis.stream.mapping.mapperDTO.VideoMapper;
+import com.orbis.stream.model.Video;
+import com.orbis.stream.model.VideoLiveHistory;
 import com.orbis.stream.record.StartLiveRecord;
+import com.orbis.stream.repository.VideoLiveHistoryRepository;
+import com.orbis.stream.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bytedeco.ffmpeg.global.avcodec;
@@ -15,10 +22,14 @@ import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
+import java.util.TimeZone;
 
 /*
 Pacing in tempo reale: Il blocco Thread.sleep calcola la differenza tra il timestamp del video e il tempo effettivo trascorso dall'inizio del programma. Questo frena l'invio dei pacchetti in modo che venga riprodotto a velocità normale.
@@ -39,6 +50,11 @@ public class StreamService {
 
     private final ResponseHandler responseHandler;
     private final LoggerMessageComponent loggerMessageComponent;
+
+    private final VideoMapper videoMapper;
+
+    private final VideoRepository videoRepository;
+    private final VideoLiveHistoryRepository videoLiveHistoryRepository;
 
     private final TaskExecutor taskExecutor;
 
@@ -134,18 +150,105 @@ public class StreamService {
         }
     }
 
+    @Transactional
     private void saveAllVideoPaths(File videoFile){
 
+
+
         File[] videoList = videoFile.listFiles(pathname -> {
+            if(pathname.isDirectory()){
+                return false;
+            }
             String fileName = pathname.getName();
             String[] splitResult = fileName.split("\\.");
             return VideoExtensionEnum.isVideoExtensionPresent(splitResult[1]);
         });
-        log.info("io");
+
+        if(videoList == null){
+            log.error(loggerMessageComponent.printMessage("folder.empty", new Object[]{ videoFile.getAbsolutePath()}));
+            throw new NotFoundCustomException("folder.empty", new Object[]{ videoFile.getAbsolutePath()});
+        }
+
+        LocalDateTime timeStartLive = LocalDateTime.now();
+        String videoFileAbsolutePath = videoFile.getAbsolutePath();
+
+        saveVideoLiveHistory(videoFileAbsolutePath, timeStartLive);
+
+        VideoLiveHistory videoLiveHistory = retrievedVideoLiveHistorySaved(videoFileAbsolutePath, timeStartLive);
+
+        for(File file : videoList){
+            Video video = Video
+                    .builder()
+                    .name(file.getName())
+                    .videoPath(file.getAbsolutePath())
+                    .extension(extractExtensionFile(file.getName()))
+                    .lastTimeStampBeforeStop(0L)
+                    .liveStatus(LiveStatusEnum.OFFLINE)
+                    .videoLiveHistory(videoLiveHistory)
+                    .build();
+            saveOnModelVideo(video);
+        }
+    }
+
+    private VideoLiveHistory retrievedVideoLiveHistorySaved(String videoFileAbsolutePath, LocalDateTime timeStartLive) {
+        return videoLiveHistoryRepository.findByFolderOfVideoToStreamAndLocalDateTimeStartLive(videoFileAbsolutePath, timeStartLive)
+                .orElseThrow( ()->{
+                    log.error(loggerMessageComponent.printMessage("video.history.not.found"));
+                    return new NotFoundCustomException("video.history.not.found");
+                });
+    }
+
+
+
+    // for now user is always Mario
+    private void saveVideoLiveHistory(String videoFileAbsolutePath, LocalDateTime zoneIdTime) {
+        VideoLiveHistory videoLiveHistory = VideoLiveHistory
+                .builder()
+                .userName("Mario")
+                .folderOfVideoToStream(videoFileAbsolutePath)
+                .localDateTimeStartLive(zoneIdTime)
+                .build();
+
+        videoLiveHistoryRepository.save(videoLiveHistory);
     }
 
     private void saveOneVideoPaths(File videoFile){
+        LocalDateTime timeStartLive = LocalDateTime.now();
+        String videoFileAbsolutePath = videoFile.getAbsolutePath();
 
+        saveVideoLiveHistory(videoFileAbsolutePath, timeStartLive);
+
+        VideoLiveHistory videoLiveHistory = retrievedVideoLiveHistorySaved(videoFileAbsolutePath, timeStartLive);
+
+        Video video = Video
+                .builder()
+                .name(videoFile.getName())
+                .videoPath(videoFile.getAbsolutePath())
+                .extension(extractExtensionFile(videoFile.getName()))
+                .lastTimeStampBeforeStop(0L)
+                .liveStatus(LiveStatusEnum.OFFLINE)
+                .videoLiveHistory(videoLiveHistory)
+                .build();
+        saveOnModelVideo(video);
+
+    }
+
+
+    private void saveOnModelVideo(Video video){
+        videoRepository.save(video);
+    }
+
+    private String extractExtensionFile(String fileName){
+        if(fileName == null){
+            log.error(loggerMessageComponent.printMessage("extension.not.found"));
+            throw new NotFoundCustomException("extension.not.found");
+        }
+
+        String[] files = fileName.split("\\.");
+
+        String extension = files[1];
+
+        return "." + files[1];
     }
 }
 
