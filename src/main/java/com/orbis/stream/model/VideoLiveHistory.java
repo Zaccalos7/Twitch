@@ -26,5 +26,5 @@ public class VideoLiveHistory {
     @Column(nullable = false)
     private LocalDateTime localDateTimeStartLive;
 
-    private String user;
+    private String userName;
 }

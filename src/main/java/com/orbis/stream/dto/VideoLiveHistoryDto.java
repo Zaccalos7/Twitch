@@ -21,5 +21,5 @@ public class VideoLiveHistoryDto {
 
     private LocalDateTime localDateTimeStartLive;
 
-    private String user;
+    private String userName;
 }
