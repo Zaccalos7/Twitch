@@ -1,10 +1,8 @@
 package com.orbis.stream.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.time.ZoneId;
 
@@ -14,18 +12,18 @@ import java.time.ZoneId;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Builder
 public class VideoLiveHistory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long pkid;
 
-    private ZoneId timeZone;
+    @Column(columnDefinition = "TEXT", nullable = false)
+    private String folderOfVideoToStream;
 
-    private String message;
+    @Column(nullable = false)
+    private ZoneId startLiveDate;
 
-    private boolean success;
-
-    @ManyToOne
-    private Video video;
+    private String user;
 }
