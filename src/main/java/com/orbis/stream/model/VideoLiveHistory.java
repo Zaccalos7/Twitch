@@ -1,9 +1,10 @@
 package com.orbis.stream.model;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 
@@ -23,7 +24,7 @@ public class VideoLiveHistory {
     private String folderOfVideoToStream;
 
     @Column(nullable = false)
-    private ZoneId startLiveDate;
+    private LocalDateTime localDateTimeStartLive;
 
     private String user;
 }

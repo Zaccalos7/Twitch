@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @Data
@@ -18,7 +19,7 @@ public class VideoLiveHistoryDto {
 
     private String folderOfVideoToStream;
 
-    private ZoneId startLiveDate;
+    private LocalDateTime localDateTimeStartLive;
 
     private String user;
 }
