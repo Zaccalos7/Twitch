@@ -5,17 +5,14 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name", "extension", "videoPath"})
-        }
-)
 public class Video {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,5 +32,8 @@ public class Video {
 
     @ColumnDefault("0")
     private Long lastTimeStampBeforeStop;
+
+    @ManyToOne
+    private VideoLiveHistory videoLiveHistory;
 
 }
