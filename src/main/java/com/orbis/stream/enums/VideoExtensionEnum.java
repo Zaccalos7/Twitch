@@ -4,11 +4,11 @@ import lombok.Getter;
 
 @Getter
 public enum VideoExtensionEnum {
-    MP4(".mp4"),
-    FLV(".flv"),
-    MOV(".mov"),
-    WEBM(".webm"),
-    VP9(".vp9");
+    MP4("mp4"),
+    FLV("flv"),
+    MOV("mov"),
+    WEBM("webm"),
+    VP9("vp9");
 
     private final String videoExtension;
 
@@ -21,10 +21,11 @@ public enum VideoExtensionEnum {
             return false;
         }
 
-        String videExtensionWithDot = "."+videoExtension;
-
         for (VideoExtensionEnum extensionEnum : VideoExtensionEnum.values()) {
-            return videExtensionWithDot.equalsIgnoreCase(extensionEnum.getVideoExtension());
+            boolean isPresent = videoExtension.equalsIgnoreCase(extensionEnum.getVideoExtension());
+
+            if(isPresent)
+                return videoExtension.equalsIgnoreCase(extensionEnum.getVideoExtension());
         }
 
         return false;
