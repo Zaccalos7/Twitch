@@ -44,4 +44,5 @@ public class VideoSetting {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "audio_setting_id")
     private AudioSetting audioSetting;
+
 }
