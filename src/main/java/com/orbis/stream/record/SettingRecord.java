@@ -7,5 +7,6 @@ public record SettingRecord(
         @NotNull(message = "not.valid.input")  String streamKey,
         @NotNull(message = "not.valid.input")  String platformStreamName,
         @NotNull(message = "not.valid.input")  String description,
-        @NotNull(message = "not.valid.input")  String videoFolder) {
+        @NotNull(message = "not.valid.input")  String videoFolder,
+        Boolean isActive) {
 }

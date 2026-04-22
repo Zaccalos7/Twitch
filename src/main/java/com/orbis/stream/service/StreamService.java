@@ -1,21 +1,33 @@
 package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
+import com.orbis.stream.enums.LiveStatusEnum;
+import com.orbis.stream.enums.VideoExtensionEnum;
+import com.orbis.stream.exceptions.NotFoundCustomException;
 import com.orbis.stream.handler.ResponseHandler;
+import com.orbis.stream.mapping.mapperRECORD.VideoSettingRecordMapper;
+import com.orbis.stream.model.Video;
+import com.orbis.stream.model.VideoLiveHistory;
+import com.orbis.stream.model.VideoSetting;
 import com.orbis.stream.record.StartLiveRecord;
+import com.orbis.stream.record.VideoSettingsRecord;
+import com.orbis.stream.repository.VideoLiveHistoryRepository;
+import com.orbis.stream.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bytedeco.ffmpeg.global.avcodec;
-import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.nio.file.Paths;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 /*
@@ -38,13 +50,135 @@ public class StreamService {
     private final ResponseHandler responseHandler;
     private final LoggerMessageComponent loggerMessageComponent;
 
+    private final VideoSettingRecordMapper videoSettingRecordMapper;
+
+    private final VideoRepository videoRepository;
+    private final VideoLiveHistoryRepository videoLiveHistoryRepository;
+
     private final TaskExecutor taskExecutor;
 
 
-    public ResponseEntity<Map<String, String>> startLive(String inputPath, String twitchStreamKey, StartLiveRecord startLiveRecord) {
+//    public ResponseEntity<Map<String, String>> startLive(String inputPath, String twitchStreamKey, StartLiveRecord startLiveRecord) {
+//
+//        String twitchUrl = "rtmp://live.twitch.tv/app/" + twitchStreamKey;
+//
+//        try {
+//            FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(inputPath);
+//            grabber.start();
+//
+//            int width = grabber.getImageWidth();
+//            int height = grabber.getImageHeight();
+//            int audioChannels = grabber.getAudioChannels();
+//            double fps = grabber.getFrameRate();
+//
+//            FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(twitchUrl, width, height, audioChannels);
+//            recorder.setFormat("flv");
+//            recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
+//            recorder.setAudioCodec(avcodec.AV_CODEC_ID_AAC);
+//            recorder.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
+//            recorder.setFrameRate(fps);
+//            recorder.setVideoBitrate(3_000_000);
+//            recorder.setAudioBitrate(160_000);
+//            recorder.setGopSize((int) (fps * 2));
+//            recorder.setVideoCodecName("libx264");
+//
+//// Recupera il nome dell'encoder effettivamente caricato
+//            String encoderName = recorder.getVideoCodecName();
+//
+//            if ("libx264".equalsIgnoreCase(encoderName)) {
+//                recorder.setVideoOption("preset", "veryfast");
+//                recorder.setVideoOption("tune", "zerolatency");
+//            } else {
+//                log.warn("L'encoder corrente è {}, salto le opzioni preset/tune per evitare errori", encoderName);
+//            }
+//
+//
+//            recorder.start();
+//
+//            taskExecutor.execute(() -> {
+//                try {
+//                    Frame frame;
+//                    long startTime = System.currentTimeMillis();
+//
+//                    while ((frame = grabber.grab()) != null) {
+//                        long timestamp = grabber.getTimestamp();
+//                        long timePassed = (System.currentTimeMillis() - startTime) * 1000;
+//
+//                        if (timestamp > timePassed) {
+//                            Thread.sleep((timestamp - timePassed) / 1000);
+//                        }
+//
+//                        recorder.setTimestamp(timestamp);
+//                        recorder.record(frame);
+//                    }
+//                } catch (Exception e) {
+//                    log.error("Errore durante lo streaming", e);
+//                } finally {
+//                    cleanup(grabber, recorder);
+//                }
+//            });
+//            return responseHandler.buildResponse("live.started", HttpStatus.ACCEPTED);
+//        }catch(Exception e){
+//            log.error(loggerMessageComponent.printMessage("error.starting.live"), e);
+//            return responseHandler.buildBadResponse("error.starting.live", HttpStatus.INTERNAL_SERVER_ERROR);
+//        }
+//    }
 
-        String twitchUrl = "rtmp://live.twitch.tv/app/" + twitchStreamKey;
+    private void cleanup(FFmpegFrameGrabber grabber, FFmpegFrameRecorder recorder) {
+        try {
+            if (recorder != null) recorder.stop();
+            if (grabber != null) grabber.stop();
+        } catch (Exception ignored) {}
+    }
 
+    public ResponseEntity<Map<String, String>> startLive(StartLiveRecord startLiveRecord){
+
+        String videoPathFolder = startLiveRecord.videoPath();
+        String streamKey = startLiveRecord.streamKey();
+        String streamUrl = startLiveRecord.streamUrl();
+        String platformStreamName = startLiveRecord.platformStreamName();
+
+        LocalDateTime timeStartLive = LocalDateTime.now();
+        saveVideoLiveHistory(videoPathFolder, timeStartLive, streamKey, streamUrl, platformStreamName);
+
+        VideoLiveHistory videoLiveHistory = retrievedVideoLiveHistorySaved(videoPathFolder, timeStartLive);
+
+        saveVideoPaths(videoPathFolder, videoLiveHistory, startLiveRecord.videoSettingsRecord());
+
+        String streamingUrl =  streamUrl.concat("/").concat(streamKey);
+
+        streamingVideo(videoLiveHistory, streamingUrl);
+        
+        return responseHandler.buildResponse("live.started", HttpStatus.ACCEPTED);
+    }
+
+    private ResponseEntity<Map<String, String>> streamingVideo(VideoLiveHistory videoLiveHistory, String streamingUrl) {
+        Long videoLiveHistoryId = videoLiveHistory.getPkid();
+        List<Video> videoList = findAllVideoToStreamOnDirectory(videoLiveHistoryId);
+
+        taskExecutor.execute(() -> {
+
+            videoList.forEach((video -> {
+                String inputPath = video.getVideoPath();
+                VideoSetting videoSetting = video.getVideoSetting();
+                startVideoStreaming(streamingUrl, inputPath, videoSetting);
+            }));
+        });
+
+        return responseHandler.buildResponse("live.started", HttpStatus.ACCEPTED);
+
+    }
+
+    @Transactional
+    private List<Video> findAllVideoToStreamOnDirectory(Long videoLiveHistoryId) {
+        return videoRepository.findByVideoLiveHistory_pkid(videoLiveHistoryId)
+                .orElseThrow(()-> {
+                    log.error("video.streaming.not.found");
+                    return new NotFoundCustomException("video.streaming.not.found");
+                });
+    }
+
+    private ResponseEntity<Map<String,String>> startVideoStreaming(String twitchUrl, String inputPath, VideoSetting videoSetting){
         try {
             FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(inputPath);
             grabber.start();
@@ -55,14 +189,15 @@ public class StreamService {
             double fps = grabber.getFrameRate();
 
             FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(twitchUrl, width, height, audioChannels);
-            recorder.setFormat("flv");
-            recorder.setVideoCodec(avcodec.AV_CODEC_ID_H264);
-            recorder.setAudioCodec(avcodec.AV_CODEC_ID_AAC);
-            recorder.setPixelFormat(avutil.AV_PIX_FMT_YUV420P);
+            recorder.setFormat(videoSetting.getVideoFormat());
+            recorder.setVideoCodec(videoSetting.getVideoCodec());
+            recorder.setAudioCodec(videoSetting.getAudioSetting().getAudioCodec());
+            recorder.setPixelFormat(videoSetting.getPixelFormat());
             recorder.setFrameRate(fps);
-            recorder.setVideoBitrate(3_000_000);
-            recorder.setAudioBitrate(160_000);
-            recorder.setGopSize((int) (fps * 2));
+            recorder.setVideoBitrate(videoSetting.getVideoBitrate());
+            recorder.setAudioBitrate(videoSetting.getAudioSetting().getAudioBitrate());
+            if(fps <= 30.00)
+                recorder.setGopSize((int) (fps * 2));
             recorder.setVideoCodecName("libx264");
 
 // Recupera il nome dell'encoder effettivamente caricato
@@ -78,7 +213,7 @@ public class StreamService {
 
             recorder.start();
 
-            taskExecutor.execute(() -> {
+
                 try {
                     Frame frame;
                     long startTime = System.currentTimeMillis();
@@ -96,10 +231,11 @@ public class StreamService {
                     }
                 } catch (Exception e) {
                     log.error("Errore durante lo streaming", e);
+                    throw new RuntimeException("errore");
                 } finally {
                     cleanup(grabber, recorder);
                 }
-            });
+
             return responseHandler.buildResponse("live.started", HttpStatus.ACCEPTED);
         }catch(Exception e){
             log.error(loggerMessageComponent.printMessage("error.starting.live"), e);
@@ -107,11 +243,117 @@ public class StreamService {
         }
     }
 
-    private void cleanup(FFmpegFrameGrabber grabber, FFmpegFrameRecorder recorder) {
-        try {
-            if (recorder != null) recorder.stop();
-            if (grabber != null) grabber.stop();
-        } catch (Exception ignored) {}
+    @Transactional
+    private void saveVideoPaths(String videoPathFolder, VideoLiveHistory videoLiveHistory, VideoSettingsRecord videoSettingsRecord) {
+        File videoFile = Paths.get(videoPathFolder).toFile();
+
+        VideoSetting videoSetting = videoSettingRecordMapper.toModel(videoSettingsRecord);
+
+        if(videoFile.isDirectory()) {
+            saveAllVideoPaths(videoFile, videoLiveHistory, videoSetting);
+        }else{
+            saveOneVideoPaths(videoFile, videoLiveHistory, videoSetting);
+        }
+    }
+
+   
+    private void saveAllVideoPaths(File videoFile, VideoLiveHistory videoLiveHistory, VideoSetting videoSetting){
+
+
+
+        File[] videoList = videoFile.listFiles(pathname -> {
+            if(pathname.isDirectory()){
+                return false;
+            }
+            String fileName = pathname.getName();
+            int lastDotIndex = fileName.lastIndexOf(".");
+
+            if (lastDotIndex == -1) {
+                return false;
+            }
+
+            String extension = fileName.substring(lastDotIndex + 1);
+            return VideoExtensionEnum.isVideoExtensionPresent(extension);
+        });
+
+
+        if(videoList == null || videoList.length == 0){
+            log.error(loggerMessageComponent.printMessage("folder.empty", new Object[]{ videoFile.getAbsolutePath()}));
+            throw new NotFoundCustomException("folder.empty", new Object[]{ videoFile.getAbsolutePath()});
+        }
+
+        for(File file : videoList){
+            Video video = Video
+                    .builder()
+                    .name(file.getName())
+                    .videoPath(file.getAbsolutePath())
+                    .extension(extractExtensionFile(file.getName()))
+                    .lastTimeStampBeforeStop(0L)
+                    .liveStatus(LiveStatusEnum.OFFLINE)
+                    .videoLiveHistory(videoLiveHistory)
+                    .videoSetting(videoSetting)
+                    .build();
+            saveOnModelVideo(video);
+        }
+    }
+
+    @Transactional(readOnly = true)
+    private VideoLiveHistory retrievedVideoLiveHistorySaved(String videoFileAbsolutePath, LocalDateTime timeStartLive) {
+        return videoLiveHistoryRepository.findByFolderOfVideoToStreamAndLocalDateTimeStartLive(videoFileAbsolutePath, timeStartLive)
+                .orElseThrow( ()->{
+                    log.error(loggerMessageComponent.printMessage("video.history.not.found"));
+                    return new NotFoundCustomException("video.history.not.found");
+                });
+    }
+
+    // for now user is always Mario
+    @Transactional
+    private void saveVideoLiveHistory(String videoFileAbsolutePath, LocalDateTime zoneIdTime, String streamUrl, String streamKey, String platformStreamingName) {
+        VideoLiveHistory videoLiveHistory = VideoLiveHistory
+                .builder()
+                .userName("Mario")
+                .folderOfVideoToStream(videoFileAbsolutePath)
+                .localDateTimeStartLive(zoneIdTime)
+                .streamUrl(streamUrl)
+                .streamKey(streamKey)
+                .platformStreamName(platformStreamingName)
+                .build();
+
+        videoLiveHistoryRepository.save(videoLiveHistory);
+    }
+
+    private void saveOneVideoPaths(File videoFile, VideoLiveHistory videoLiveHistory, VideoSetting videoSetting){
+       
+
+        Video video = Video
+                .builder()
+                .name(videoFile.getName())
+                .videoPath(videoFile.getAbsolutePath())
+                .extension(extractExtensionFile(videoFile.getName()))
+                .lastTimeStampBeforeStop(0L)
+                .liveStatus(LiveStatusEnum.OFFLINE)
+                .videoLiveHistory(videoLiveHistory)
+                .videoSetting(videoSetting)
+                .build();
+        saveOnModelVideo(video);
+
+    }
+
+    private void saveOnModelVideo(Video video){
+        videoRepository.save(video);
+    }
+
+    private String extractExtensionFile(String fileName){
+        if(fileName == null){
+            log.error(loggerMessageComponent.printMessage("extension.not.found"));
+            throw new NotFoundCustomException("extension.not.found");
+        }
+
+        String[] files = fileName.split("\\.");
+
+        String extension = files[1];
+
+        return extension;
     }
 }
 

@@ -4,10 +4,11 @@ import java.time.LocalDateTime;
 
 
 public record VideoSettingsRecord(
+        Integer id,
+        String title,
         Integer videoCodec,
         Integer pixelFormat,
         Integer videoBitrate,
-        Integer gopSize,
         LocalDateTime lastModified,
         Boolean isVideoAndAudioSettingActive,
         VideoOptionRecord[] videoOptions,

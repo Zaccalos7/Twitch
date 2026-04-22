@@ -2,10 +2,8 @@ package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.controller.filter.DynamicSpecificationBuilder;
-import com.orbis.stream.dto.VideoSettingDto;
 import com.orbis.stream.exceptions.NotFoundCustomException;
 import com.orbis.stream.handler.ResponseHandler;
-import com.orbis.stream.mapping.mapperDTO.VideoSettingMapper;
 import com.orbis.stream.mapping.mapperRECORD.VideoSettingRecordMapper;
 import com.orbis.stream.model.VideoSetting;
 import com.orbis.stream.record.VideoSettingsRecord;
@@ -28,55 +26,54 @@ import java.util.Map;
 public class VideoSettingService {
 
     private final VideoSettingRecordMapper videoSettingRecordMapper;
-    private final VideoSettingMapper videoSettingMapper;
 
     private final VideoSettingRepository videoSettingRepository;
 
     private final LoggerMessageComponent loggerMessageComponent;
     private final ResponseHandler responseHandler;
 
-    public ResponseEntity<Map<String,String>> saveSettingsVideo(VideoSettingDto videoSettingDto){
-        mappingAndSaveValue(videoSettingDto);
+    public ResponseEntity<Map<String,String>> saveSettingsVideo(VideoSettingsRecord videoSettingsRecord){
+        mappingAndSaveValue(videoSettingsRecord);
         log.info(loggerMessageComponent.printMessage("video.settings.saved"));
 
         return responseHandler.buildResponse("video.settings.saved", HttpStatus.CREATED);
     }
 
     @Transactional
-    private void mappingAndSaveValue(VideoSettingDto videoSettingDto){
-        VideoSetting videoSetting =  videoSettingMapper.toModel(videoSettingDto);
+    private void mappingAndSaveValue(VideoSettingsRecord videoSettingsRecord){
+        VideoSetting videoSetting =  videoSettingRecordMapper.toModel(videoSettingsRecord);
         LocalDateTime localDate = LocalDateTime.now();
         videoSetting.setLastModified(localDate);
         videoSettingRepository.save(videoSetting);
     }
 
 
-    public List<VideoSettingDto> getAllVideoSettings(Map<String, String> filtersMap) {
+    public List<VideoSettingsRecord> getAllVideoSettings(Map<String, String> filtersMap) {
        return retrivesVideoSettings(filtersMap);
     }
 
     @Transactional(readOnly = true)
-    private List<VideoSettingDto> retrivesVideoSettings(Map<String, String> filtersMap) {
+    private List<VideoSettingsRecord> retrivesVideoSettings(Map<String, String> filtersMap) {
         Specification<VideoSetting> dynamicFilteringSpecification =
                 DynamicSpecificationBuilder.buildSpecification(filtersMap);
 
         return videoSettingRepository.findAll(dynamicFilteringSpecification)
                 .stream()
-                .map(videoSettingMapper::toDto)
+                .map(videoSettingRecordMapper::toDto)
                 .toList();
     }
 
-    public ResponseEntity<Map<String,String>> editSettingsVideo(VideoSettingDto videoSettingDto, Integer id){
-        editVideoSetting(videoSettingDto, id);
+    public ResponseEntity<Map<String,String>> editSettingsVideo(VideoSettingsRecord videoSettingsRecord, Integer id){
+        editVideoSetting(videoSettingsRecord, id);
         log.info(loggerMessageComponent.printMessage("video.settings.modified"));
 
         return responseHandler.buildResponse("video.settings.modified", HttpStatus.CREATED);
     }
 
     @Transactional
-    private void editVideoSetting(VideoSettingDto videoSettingDto, Integer id) {
+    private void editVideoSetting(VideoSettingsRecord videoSettingsRecord, Integer id) {
         checkIfVideoSettingExist(id);
-        VideoSetting videoSetting = videoSettingMapper.toModel(videoSettingDto);
+        VideoSetting videoSetting = videoSettingRecordMapper.toModel(videoSettingsRecord);
         LocalDateTime localDate = LocalDateTime.now();
         videoSetting.setLastModified(localDate);
         videoSettingRepository.save(videoSetting);
