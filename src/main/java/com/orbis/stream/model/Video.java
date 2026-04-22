@@ -5,17 +5,14 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(
-        uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name", "extension", "streamPlatform"})
-        }
-)
 public class Video {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,12 +22,20 @@ public class Video {
     private String name;
 
     @Column(nullable = false)
-    private String extension;
+    private String videoPath;
 
     @Column(nullable = false)
-    private String streamPlatform;
+    private String extension;
 
     @ColumnDefault("1")
     private LiveStatusEnum liveStatus;
 
+    @ColumnDefault("0")
+    private Long lastTimeStampBeforeStop;
+
+    @ManyToOne
+    private VideoLiveHistory videoLiveHistory;
+
+    @ManyToOne
+    private VideoSetting videoSetting;
 }

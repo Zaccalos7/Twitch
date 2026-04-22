@@ -11,23 +11,52 @@ public final class DynamicSpecificationBuilder {
 
     private DynamicSpecificationBuilder() {}
 
-    public static <T> Specification<T> buildSpecification(Map<String, String> filters){
+    public static <T> Specification<T> buildSpecification(Map<String, String> filters) {
 
         return (root, query, criteriaBuilder) -> {
 
-            List<Predicate> filteringPredicates = new ArrayList<>();
+            List<Predicate> predicates = new ArrayList<>();
 
             filters.forEach((fieldName, fieldValue) -> {
 
-                Predicate fieldPredicate = criteriaBuilder.equal(
+                Class<?> fieldType = root.get(fieldName).getJavaType();
+                Object typedValue = castToRequiredType(fieldType, fieldValue);
+
+                Predicate predicate = criteriaBuilder.equal(
                         root.get(fieldName),
-                        fieldValue
+                        typedValue
                 );
 
-                filteringPredicates.add(fieldPredicate);
+                predicates.add(predicate);
             });
 
-            return criteriaBuilder.and(filteringPredicates.toArray(new Predicate[0]));
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         };
     }
+
+    private static Object castToRequiredType(Class<?> fieldType, String value) {
+
+        if (fieldType.equals(Integer.class)) {
+            return Integer.valueOf(value);
+        }
+
+        if (fieldType.equals(Long.class)) {
+            return Long.valueOf(value);
+        }
+
+        if (fieldType.equals(Boolean.class)) {
+            return Boolean.valueOf(value);
+        }
+
+        if (fieldType.equals(Double.class)) {
+            return Double.valueOf(value);
+        }
+
+        if (fieldType.equals(String.class)) {
+            return value;
+        }
+
+        throw new IllegalArgumentException("Tipo non supportato: " + fieldType);
+    }
+
 }

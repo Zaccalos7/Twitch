@@ -21,10 +21,12 @@ public class VideoSetting {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @Column(columnDefinition = "varchar(255) default 'Title'")
+    private String title;
+
     private Integer videoCodec;
     private Integer pixelFormat;
     private Integer videoBitrate;
-    private Integer gopSize;
     private String videoFormat;
     private LocalDateTime lastModified;
 
@@ -42,4 +44,5 @@ public class VideoSetting {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "audio_setting_id")
     private AudioSetting audioSetting;
+
 }

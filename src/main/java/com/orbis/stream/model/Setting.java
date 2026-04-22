@@ -35,6 +35,9 @@ public class Setting {
     @Column(nullable = false)
     private String videoFolder;
 
+    @ColumnDefault("false")
+    private Boolean isActive;
+
     @ManyToOne
     private User user;
 }
