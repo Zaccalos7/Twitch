@@ -36,4 +36,6 @@ public class Video {
     @ManyToOne
     private VideoLiveHistory videoLiveHistory;
 
+    @ManyToOne
+    private VideoSetting videoSetting;
 }

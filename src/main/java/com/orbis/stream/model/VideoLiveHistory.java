@@ -3,6 +3,7 @@ package com.orbis.stream.model;
 import jakarta.persistence.*;
 
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -25,6 +26,18 @@ public class VideoLiveHistory {
 
     @Column(nullable = false)
     private LocalDateTime localDateTimeStartLive;
+
+    @Column(nullable = false, length = 512)
+    @ColumnDefault("N/A")
+    private String streamUrl;
+
+    @Column(nullable = false, length = 512)
+    @ColumnDefault("N/A")
+    private String streamKey;
+
+    @Column(nullable = false)
+    @ColumnDefault("N/A")
+    private String platformStreamName;
 
     private String userName;
 }
