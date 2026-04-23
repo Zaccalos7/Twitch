@@ -14,8 +14,6 @@ import com.orbis.stream.repository.VideoLiveHistoryRepository;
 import com.orbis.stream.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.bytedeco.ffmpeg.global.avcodec;
-import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
@@ -210,6 +208,8 @@ public class StreamService {
             }
 
             recorder.start();
+            log.info(loggerMessageComponent.printMessage("video.live.started", new Object[]{inputPath}));
+            saveMessageOnVideoLiveHistory(loggerMessageComponent.printMessage("video.live.started", new Object[]{inputPath}), videoLiveHistoryId, inputPath, "LIVE");
 
             try {
                 Frame frame;
@@ -227,13 +227,16 @@ public class StreamService {
                     recorder.setTimestamp(timestamp);
                     recorder.record(frame);
                 }
+                String message = loggerMessageComponent.printMessage("video.live.ended");
+                log.info(message);
+                saveMessageOnVideoLiveHistory(message, videoLiveHistoryId, inputPath, "ENDED");
 
             } catch (Exception e) {
                 String errorMessage = loggerMessageComponent.printMessage("error.during.streaming.video", new Object[]{inputPath})
                         + "\n"
                         + e.getMessage();
                 log.error(errorMessage);
-                saveMessageOnVideoLiveHistory(errorMessage, videoLiveHistoryId, inputPath);
+                saveMessageOnVideoLiveHistory(errorMessage, videoLiveHistoryId, inputPath, "ERROR");
             } finally {
                 cleanup(grabber, recorder);
             }
@@ -243,12 +246,12 @@ public class StreamService {
                     + "\n"
                     + e.getMessage();
             log.error(errorMessage);
-            saveMessageOnVideoLiveHistory(errorMessage, videoLiveHistoryId, inputPath);
+            saveMessageOnVideoLiveHistory(errorMessage, videoLiveHistoryId, inputPath, "ERROR");
         }
     }
 
     @Transactional
-    private void saveMessageOnVideoLiveHistory(String errorMessage, Long videoLiveHistoryId, String inputPath) {
+    private void saveMessageOnVideoLiveHistory(String message, Long videoLiveHistoryId, String inputPath, String statusLive) {
         Video video = videoRepository.findByVideoPathAndVideoLiveHistory_pkid(inputPath, videoLiveHistoryId);
 
         if(video == null){
@@ -256,8 +259,8 @@ public class StreamService {
             return;
         }
 
-        video.setMessage(errorMessage);
-        video.setLiveStatus(LiveStatusEnum.ERROR);
+        video.setMessage(message);
+        video.setLiveStatus(LiveStatusEnum.valueOf(statusLive));
         videoRepository.save(video);
     }
 
