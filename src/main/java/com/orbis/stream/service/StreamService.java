@@ -1,8 +1,7 @@
 package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
-import com.orbis.stream.enums.LiveStatusEnum;
-import com.orbis.stream.enums.VideoExtensionEnum;
+import com.orbis.stream.enums.*;
 import com.orbis.stream.exceptions.NotFoundCustomException;
 import com.orbis.stream.handler.ResponseHandler;
 import com.orbis.stream.mapping.mapperRECORD.VideoSettingRecordMapper;
@@ -15,6 +14,8 @@ import com.orbis.stream.repository.VideoLiveHistoryRepository;
 import com.orbis.stream.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.bytedeco.ffmpeg.global.avcodec;
+import org.bytedeco.ffmpeg.global.avutil;
 import org.bytedeco.javacv.FFmpegFrameGrabber;
 import org.bytedeco.javacv.FFmpegFrameRecorder;
 import org.bytedeco.javacv.Frame;
@@ -147,9 +148,7 @@ public class StreamService {
 
         String streamingUrl =  streamUrl.concat("/").concat(streamKey);
 
-        streamingVideo(videoLiveHistory, streamingUrl);
-        
-        return responseHandler.buildResponse("live.started", HttpStatus.ACCEPTED);
+        return streamingVideo(videoLiveHistory, streamingUrl);
     }
 
     private ResponseEntity<Map<String, String>> streamingVideo(VideoLiveHistory videoLiveHistory, String streamingUrl) {
@@ -161,7 +160,7 @@ public class StreamService {
             videoList.forEach((video -> {
                 String inputPath = video.getVideoPath();
                 VideoSetting videoSetting = video.getVideoSetting();
-                startVideoStreaming(streamingUrl, inputPath, videoSetting);
+                startVideoStreaming(streamingUrl, inputPath, videoSetting, videoLiveHistoryId);
             }));
         });
 
@@ -178,7 +177,7 @@ public class StreamService {
                 });
     }
 
-    private ResponseEntity<Map<String,String>> startVideoStreaming(String twitchUrl, String inputPath, VideoSetting videoSetting){
+    private void startVideoStreaming(String twitchUrl, String inputPath, VideoSetting videoSetting, Long videoLiveHistoryId){
         try {
             FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(inputPath);
             grabber.start();
@@ -200,7 +199,7 @@ public class StreamService {
                 recorder.setGopSize((int) (fps * 2));
             recorder.setVideoCodecName("libx264");
 
-// Recupera il nome dell'encoder effettivamente caricato
+            // Recupera il nome dell'encoder effettivamente caricato
             String encoderName = recorder.getVideoCodecName();
 
             if ("libx264".equalsIgnoreCase(encoderName)) {
@@ -210,37 +209,56 @@ public class StreamService {
                 log.warn("L'encoder corrente è {}, salto le opzioni preset/tune per evitare errori", encoderName);
             }
 
-
             recorder.start();
 
+            try {
+                Frame frame;
+                long startTime = System.currentTimeMillis();
 
-                try {
-                    Frame frame;
-                    long startTime = System.currentTimeMillis();
+                while ((frame = grabber.grab()) != null) {
+                    long timestamp = grabber.getTimestamp();
+                    long timePassed = (System.currentTimeMillis() - startTime) * 1000;
 
-                    while ((frame = grabber.grab()) != null) {
-                        long timestamp = grabber.getTimestamp();
-                        long timePassed = (System.currentTimeMillis() - startTime) * 1000;
-
-                        if (timestamp > timePassed) {
-                            Thread.sleep((timestamp - timePassed) / 1000);
-                        }
-
-                        recorder.setTimestamp(timestamp);
-                        recorder.record(frame);
+                    //I send video datas faster than platform streaming
+                    if (timestamp > timePassed) {
+                        Thread.sleep((timestamp - timePassed) / 1000);
                     }
-                } catch (Exception e) {
-                    log.error("Errore durante lo streaming", e);
-                    throw new RuntimeException("errore");
-                } finally {
-                    cleanup(grabber, recorder);
+
+                    recorder.setTimestamp(timestamp);
+                    recorder.record(frame);
                 }
 
-            return responseHandler.buildResponse("live.started", HttpStatus.ACCEPTED);
+            } catch (Exception e) {
+                String errorMessage = loggerMessageComponent.printMessage("error.during.streaming.video", new Object[]{inputPath})
+                        + "\n"
+                        + e.getMessage();
+                log.error(errorMessage);
+                saveMessageOnVideoLiveHistory(errorMessage, videoLiveHistoryId, inputPath);
+            } finally {
+                cleanup(grabber, recorder);
+            }
+
         }catch(Exception e){
-            log.error(loggerMessageComponent.printMessage("error.starting.live"), e);
-            return responseHandler.buildBadResponse("error.starting.live", HttpStatus.INTERNAL_SERVER_ERROR);
+            String errorMessage = loggerMessageComponent.printMessage("error.during.starting.video", new Object[]{inputPath})
+                    + "\n"
+                    + e.getMessage();
+            log.error(errorMessage);
+            saveMessageOnVideoLiveHistory(errorMessage, videoLiveHistoryId, inputPath);
         }
+    }
+
+    @Transactional
+    private void saveMessageOnVideoLiveHistory(String errorMessage, Long videoLiveHistoryId, String inputPath) {
+        Video video = videoRepository.findByVideoPathAndVideoLiveHistory_pkid(inputPath, videoLiveHistoryId);
+
+        if(video == null){
+            log.error(loggerMessageComponent.printMessage("error.during.retrieved.video", new Object[]{inputPath, videoLiveHistoryId}));
+            return;
+        }
+
+        video.setMessage(errorMessage);
+        video.setLiveStatus(LiveStatusEnum.ERROR);
+        videoRepository.save(video);
     }
 
     @Transactional
