@@ -20,4 +20,6 @@ public class VideoDto {
     private LiveStatusEnum liveStatus;
 
     private Long lastTimeStampBeforeStop;
+
+    private String message;
 }
