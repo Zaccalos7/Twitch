@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface VideoRepository extends JpaRepository<Video, Integer> {
     Optional<List<Video>> findByVideoLiveHistory_pkid(Long pkid);
+    Video findByVideoPathAndVideoLiveHistory_pkid(String videoPath, Long pkid);
 }
