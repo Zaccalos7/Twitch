@@ -33,6 +33,9 @@ public class Video {
     @ColumnDefault("0")
     private Long lastTimeStampBeforeStop;
 
+    @Column(columnDefinition = "TEXT")
+    private String message;
+
     @ManyToOne
     private VideoLiveHistory videoLiveHistory;
 
