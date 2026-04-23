@@ -8,7 +8,8 @@ public enum VideoExtensionEnum {
     FLV("flv"),
     MOV("mov"),
     WEBM("webm"),
-    VP9("vp9");
+    VP9("vp9"),
+    MKV("mkv");
 
     private final String videoExtension;
 
