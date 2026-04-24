@@ -25,6 +25,7 @@ public class VideoSetting {
     private String title;
 
     private Integer videoCodec;
+    private String videoCodecName;
     private Integer pixelFormat;
     private Integer videoBitrate;
     private String videoFormat;

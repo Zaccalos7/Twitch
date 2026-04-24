@@ -7,6 +7,7 @@ public record VideoSettingsRecord(
         Integer id,
         String title,
         Integer videoCodec,
+        String videoCodecName,
         Integer pixelFormat,
         Integer videoBitrate,
         LocalDateTime lastModified,
