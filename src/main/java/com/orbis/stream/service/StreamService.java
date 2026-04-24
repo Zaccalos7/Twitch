@@ -8,6 +8,7 @@ import com.orbis.stream.mapping.mapperRECORD.VideoSettingRecordMapper;
 import com.orbis.stream.model.Video;
 import com.orbis.stream.model.VideoLiveHistory;
 import com.orbis.stream.model.VideoSetting;
+import com.orbis.stream.model.VideoSettingsOption;
 import com.orbis.stream.record.StartLiveRecord;
 import com.orbis.stream.record.VideoSettingsRecord;
 import com.orbis.stream.repository.VideoLiveHistoryRepository;
@@ -193,19 +194,15 @@ public class StreamService {
             recorder.setFrameRate(fps);
             recorder.setVideoBitrate(videoSetting.getVideoBitrate());
             recorder.setAudioBitrate(videoSetting.getAudioSetting().getAudioBitrate());
-            if(fps <= 30.00)
-                recorder.setGopSize((int) (fps * 2));
-            recorder.setVideoCodecName("libx264");
+            //gop size is the double of fps
+            recorder.setGopSize((int) (fps * 2));
+            recorder.setVideoCodecName(videoSetting.getVideoCodecName());
 
-            // Recupera il nome dell'encoder effettivamente caricato
-            String encoderName = recorder.getVideoCodecName();
+            List<VideoSettingsOption> videoSettingsOptionList = videoSetting.getVideoSettingsOptions();
 
-            if ("libx264".equalsIgnoreCase(encoderName)) {
-                recorder.setVideoOption("preset", "veryfast");
-                recorder.setVideoOption("tune", "zerolatency");
-            } else {
-                log.warn("L'encoder corrente è {}, salto le opzioni preset/tune per evitare errori", encoderName);
-            }
+            videoSettingsOptionList.forEach((videoSettingsOption)->{
+                recorder.setVideoOption(videoSettingsOption.getKey(), videoSettingsOption.getValue());
+            });
 
             recorder.start();
             log.info(loggerMessageComponent.printMessage("video.live.started", new Object[]{inputPath}));
