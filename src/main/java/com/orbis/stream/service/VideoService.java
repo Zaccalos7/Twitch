@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
@@ -21,6 +22,7 @@ public class VideoService {
 
     private final LoggerMessageComponent loggerMessageComponent;
 
+    @Transactional(readOnly = true)
     public Page<VideoDto> getVideoList (Pageable pageable){
         Page<VideoDto> videoDtoPage = videoRepository
                 .findAll(pageable)
