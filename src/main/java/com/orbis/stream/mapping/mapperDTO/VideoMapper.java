@@ -5,6 +5,6 @@ import com.orbis.stream.mapping.BaseMapper;
 import com.orbis.stream.model.Video;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {VideoLiveHistoryMapper.class, V})
 public interface VideoMapper extends BaseMapper<VideoDto, Video> {
 }

@@ -44,7 +44,7 @@ public class ImageController {
 
         ImageUtilities imageUtilities = imageComponent.loadImage();
 
-        log.info(loggerMessageComponent.printMessage("image.retrive"));
+        log.info(loggerMessageComponent.printMessage("image.recovered"));
 
         return ResponseEntity.ok()
                 .header("Content-Type", imageUtilities.getContentType())
