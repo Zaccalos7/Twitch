@@ -1,6 +1,7 @@
 package com.orbis.stream.controller;
 
 import com.orbis.stream.dto.VideoDto;
+import com.orbis.stream.record.VideoRecord;
 import com.orbis.stream.service.VideoService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
+
 import java.util.Map;
 
 @RestController
@@ -31,8 +32,8 @@ public class VideoController {
 
     @Operation(summary = "Restituisce tutti i video, oppure filtrati")
     @GetMapping("getAllVideo")
-    public Page<VideoDto> getAllVideoList(Map<String, String> filtersMap,
-                                          @PageableDefault(size = 20, sort = "pkid", direction = Sort.Direction.DESC)
+    public Page<VideoRecord> getAllVideoList(Map<String, String> filtersMap,
+                                             @PageableDefault(size = 20, sort = "pkid", direction = Sort.Direction.DESC)
                                           Pageable pageable){
         return videoService.getAllVideoList(filtersMap, pageable);
     }

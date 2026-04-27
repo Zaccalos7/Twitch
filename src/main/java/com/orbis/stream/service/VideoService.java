@@ -4,7 +4,9 @@ import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.controller.filter.DynamicSpecificationBuilder;
 import com.orbis.stream.dto.VideoDto;
 import com.orbis.stream.mapping.mapperDTO.VideoMapper;
+import com.orbis.stream.mapping.mapperRECORD.VideoRecordMapper;
 import com.orbis.stream.model.Video;
+import com.orbis.stream.record.VideoRecord;
 import com.orbis.stream.repository.VideoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +16,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Map;
 
 
@@ -24,7 +25,9 @@ import java.util.Map;
 public class VideoService {
 
     private final VideoRepository videoRepository;
+
     private final VideoMapper videoMapper;
+    private final VideoRecordMapper videoRecordMapper;
 
     private final LoggerMessageComponent loggerMessageComponent;
 
@@ -37,16 +40,16 @@ public class VideoService {
         return videoDtoPage;
     }
 
-    public Page<VideoDto> getAllVideoList(Map<String, String> filtersMap, Pageable pageable) {
-        Page<VideoDto> videoList = getAllVideoByFilters(filtersMap, pageable);
+    public Page<VideoRecord> getAllVideoList(Map<String, String> filtersMap, Pageable pageable) {
+        Page<VideoRecord> videoList = getAllVideoByFilters(filtersMap, pageable);
         log.info(loggerMessageComponent.printMessage("recovered.video"));
         return videoList;
     }
 
     @Transactional(readOnly = true)
-    private Page<VideoDto> getAllVideoByFilters(Map<String, String> filtersMap, Pageable pageable){
+    private Page<VideoRecord> getAllVideoByFilters(Map<String, String> filtersMap, Pageable pageable){
         Specification<Video> dynamicSpecification = DynamicSpecificationBuilder.buildSpecification(filtersMap);
         return videoRepository.findAll(dynamicSpecification, pageable)
-                .map(videoMapper::toDto);
+                .map(videoRecordMapper::toDto);
     }
 }
