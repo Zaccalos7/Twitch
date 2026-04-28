@@ -56,6 +56,11 @@ public final class DynamicSpecificationBuilder {
             return value;
         }
 
+        if (fieldType.isEnum()) {
+            return Enum.valueOf(fieldType.asSubclass(Enum.class), value);
+        }
+
+
         throw new IllegalArgumentException("Tipo non supportato: " + fieldType);
     }
 
