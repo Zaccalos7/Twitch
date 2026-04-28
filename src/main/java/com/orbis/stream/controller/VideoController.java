@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 
@@ -32,9 +33,11 @@ public class VideoController {
 
     @Operation(summary = "Restituisce tutti i video, oppure filtrati")
     @GetMapping("getAllVideo")
-    public Page<VideoRecord> getAllVideoList(Map<String, String> filtersMap,
-                                             @PageableDefault(size = 20, sort = "pkid", direction = Sort.Direction.DESC)
+    public Page<VideoRecord> getAllVideoList(@RequestParam  Map<String, String> filtersMap,
+                                             @PageableDefault(size = 4, sort = "pkid", direction = Sort.Direction.DESC)
                                           Pageable pageable){
+        filtersMap.remove("page");
+        filtersMap.remove("size");
         return videoService.getAllVideoList(filtersMap, pageable);
     }
 }
