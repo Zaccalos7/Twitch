@@ -36,6 +36,9 @@ public class Video {
     @Column(columnDefinition = "TEXT")
     private String message;
 
+    @ColumnDefault("false")
+    private Boolean shouldBeStop;
+
     @ManyToOne
     private VideoLiveHistory videoLiveHistory;
 

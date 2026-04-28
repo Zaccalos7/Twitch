@@ -13,6 +13,7 @@ public record VideoRecord(
         Long lastTimeStampBeforeStop,
         String message,
         VideoLiveHistoryRecord videoLiveHistory,
-        VideoSettingsRecord videoSetting
+        VideoSettingsRecord videoSetting,
+        Boolean shouldBeStop
 ) {
 }

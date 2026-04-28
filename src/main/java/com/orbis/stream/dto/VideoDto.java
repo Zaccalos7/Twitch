@@ -22,4 +22,6 @@ public class VideoDto {
     private Long lastTimeStampBeforeStop;
 
     private String message;
+
+    private Boolean shouldBeStop;
 }
