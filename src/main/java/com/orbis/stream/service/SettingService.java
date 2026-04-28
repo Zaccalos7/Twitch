@@ -159,7 +159,7 @@ public class SettingService {
                     return new VideoPathRecord(videoPath, isAdirectory);
                  })
                  .toList();
-         log.trace(loggerMessageComponent.printMessage("retrive.directories.path"));
+         log.trace(loggerMessageComponent.printMessage("recovered.directories.path"));
          return DirectoriesPathList;
     }
 
