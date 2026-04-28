@@ -1,5 +1,6 @@
 package com.orbis.stream.service;
 
+import com.orbis.stream.component.LiveStreamManager;
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.enums.*;
 import com.orbis.stream.exceptions.NotFoundCustomException;
@@ -29,6 +30,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Future;
 
 /*
 Pacing in tempo reale: Il blocco Thread.sleep calcola la differenza tra il timestamp del video e il tempo effettivo trascorso dall'inizio del programma. Questo frena l'invio dei pacchetti in modo che venga riprodotto a velocità normale.
@@ -145,7 +147,13 @@ public class StreamService {
 
         saveVideoPaths(videoPathFolder, videoLiveHistory, startLiveRecord.videoSettingsRecord());
 
-        String streamingUrl =  streamUrl.concat("/").concat(streamKey);
+        String streamingUrl;
+
+        if(streamUrl.endsWith("/")){
+            streamingUrl =  streamUrl.concat(streamKey);
+        }else{
+            streamingUrl =  streamUrl.concat("/").concat(streamKey);
+        }
 
         return streamingVideo(videoLiveHistory, streamingUrl);
     }
