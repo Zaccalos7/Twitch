@@ -1,6 +1,6 @@
 package com.orbis.stream.controller;
 
-import com.orbis.stream.component.LiveStreamManager;
+
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.handler.ResponseHandler;
 import com.orbis.stream.record.StartLiveRecord;
@@ -41,9 +41,10 @@ public class StreamController {
     @PutMapping("/stop-live")
     @Operation(summary = "Endpoint per lo stop della live con il suo pkid",
             description = "Restituisce l'esito dell'operazione e il pkid del videoLiveHistory fermato")
-    public ResponseEntity<Map<String,String>> stopLive(@RequestParam Long videoLiveHistoryPkid) {
+    public ResponseEntity<Map<String,String>> stopLive(@RequestParam Integer videoLivePkid) {
 
 //       streamService.stopLiveWithVideoLiveHistoryPkid(videoLiveHistoryPkid);
+       streamService.stopVideoStreamingByPkid(videoLivePkid);
        log.info(loggerMessageComponent.printMessage("live.stopped"));
        return responseHandler.buildResponse("live.stopped", HttpStatus.OK);
     }

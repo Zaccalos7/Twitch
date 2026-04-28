@@ -1,6 +1,5 @@
 package com.orbis.stream.service;
 
-import com.orbis.stream.component.LiveStreamManager;
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.enums.*;
 import com.orbis.stream.exceptions.NotFoundCustomException;
@@ -30,7 +29,6 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
 
 /*
 Pacing in tempo reale: Il blocco Thread.sleep calcola la differenza tra il timestamp del video e il tempo effettivo trascorso dall'inizio del programma. Questo frena l'invio dei pacchetti in modo che venga riprodotto a velocità normale.
@@ -166,8 +164,9 @@ public class StreamService {
 
             videoList.forEach((video -> {
                 String inputPath = video.getVideoPath();
+                Integer videoKey = video.getPkid();
                 VideoSetting videoSetting = video.getVideoSetting();
-                startVideoStreaming(streamingUrl, inputPath, videoSetting, videoLiveHistoryId);
+                startVideoStreaming(streamingUrl, inputPath, videoSetting, videoLiveHistoryId, videoKey);
             }));
         });
 
@@ -184,7 +183,12 @@ public class StreamService {
                 });
     }
 
-    private void startVideoStreaming(String twitchUrl, String inputPath, VideoSetting videoSetting, Long videoLiveHistoryId){
+    private void startVideoStreaming(String twitchUrl,
+                                     String inputPath,
+                                     VideoSetting videoSetting,
+                                     Long videoLiveHistoryId,
+                                     Integer videoKey
+                                     ){
         try {
             FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(inputPath);
             grabber.start();
@@ -219,10 +223,20 @@ public class StreamService {
             try {
                 Frame frame;
                 long startTime = System.currentTimeMillis();
+                boolean shouldBeStopped;
 
                 while ((frame = grabber.grab()) != null) {
                     long timestamp = grabber.getTimestamp();
                     long timePassed = (System.currentTimeMillis() - startTime) * 1000;
+
+                    shouldBeStopped = checkIfFlagStopExists(videoKey);
+
+                    if(shouldBeStopped){
+                        recorder.stop();
+                        String message = loggerMessageComponent.printMessage("live.stopped");
+                        log.info(message);
+                        saveMessageOnVideoLiveHistory(message, videoLiveHistoryId, inputPath, "STOPPED");
+                    }
 
                     //I send video datas faster than platform streaming
                     if (timestamp > timePassed) {
@@ -253,6 +267,12 @@ public class StreamService {
             log.error(errorMessage);
             saveMessageOnVideoLiveHistory(errorMessage, videoLiveHistoryId, inputPath, "ERROR");
         }
+    }
+
+    @Transactional(readOnly = true)
+    private boolean checkIfFlagStopExists(Integer videoKey) {
+        Video video = videoRepository.findByPkid(videoKey);
+        return video.getShouldBeStop();
     }
 
     @Transactional
@@ -318,6 +338,7 @@ public class StreamService {
                     .liveStatus(LiveStatusEnum.OFFLINE)
                     .videoLiveHistory(videoLiveHistory)
                     .videoSetting(videoSetting)
+                    .shouldBeStop(false)
                     .build();
             saveOnModelVideo(video);
         }
@@ -360,6 +381,7 @@ public class StreamService {
                 .liveStatus(LiveStatusEnum.OFFLINE)
                 .videoLiveHistory(videoLiveHistory)
                 .videoSetting(videoSetting)
+                .shouldBeStop(false)
                 .build();
         saveOnModelVideo(video);
 
@@ -380,6 +402,27 @@ public class StreamService {
         String extension = files[1];
 
         return extension;
+    }
+
+    public void stopVideoStreamingByPkid(Integer videoLivePkid) {
+        Video video = checkIfExistsAndReturnEntity(videoLivePkid);
+        video.setShouldBeStop(true);
+        saveFlagToStopLive(video);
+    }
+
+    @Transactional(readOnly = true)
+    protected Video checkIfExistsAndReturnEntity(Integer pkid){
+        Video video =  videoRepository.findByPkid(pkid);
+        if(video == null){
+            log.warn(loggerMessageComponent.printMessage("video.not.found"));
+            throw new NotFoundCustomException("video.not.found");
+        }
+        return video;
+    }
+
+    @Transactional
+    protected void saveFlagToStopLive(Video video){
+        videoRepository.save(video);
     }
 }
 
