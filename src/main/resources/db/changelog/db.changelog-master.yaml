@@ -51,3 +51,5 @@ databaseChangeLog:
       file: "db/changelog/db.2026_04_24_21_35_30_changelog.yml"
   - include:
       file: "db/changelog/db.2026_04_28_15_20_58_changelog.yml"
+  - include:
+      file: "db/changelog/db.2026_04_29_12_43_01_changelog.yml"
