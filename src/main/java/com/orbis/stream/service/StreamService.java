@@ -339,6 +339,7 @@ public class StreamService {
                     .videoLiveHistory(videoLiveHistory)
                     .videoSetting(videoSetting)
                     .shouldBeStop(false)
+                    .startDateLive(LocalDateTime.now())
                     .build();
             saveOnModelVideo(video);
         }
@@ -382,6 +383,7 @@ public class StreamService {
                 .videoLiveHistory(videoLiveHistory)
                 .videoSetting(videoSetting)
                 .shouldBeStop(false)
+                .startDateLive(LocalDateTime.now())
                 .build();
         saveOnModelVideo(video);
 

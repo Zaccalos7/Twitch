@@ -43,7 +43,6 @@ public class StreamController {
             description = "Restituisce l'esito dell'operazione e il pkid del videoLiveHistory fermato")
     public ResponseEntity<Map<String,String>> stopLive(@RequestParam Integer videoLivePkid) {
 
-//       streamService.stopLiveWithVideoLiveHistoryPkid(videoLiveHistoryPkid);
        streamService.stopVideoStreamingByPkid(videoLivePkid);
        log.info(loggerMessageComponent.printMessage("live.stopped"));
        return responseHandler.buildResponse("live.stopped", HttpStatus.OK);
