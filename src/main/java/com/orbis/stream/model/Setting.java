@@ -3,6 +3,7 @@ package com.orbis.stream.model;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.DialectOverride;
 
 @Getter
 @Setter
@@ -37,6 +38,10 @@ public class Setting {
 
     @ColumnDefault("false")
     private Boolean isActive;
+
+    @Column(nullable = false, columnDefinition = "TEXT")
+    @ColumnDefault("Zingy")
+    private String channelName;
 
     @ManyToOne
     private User user;

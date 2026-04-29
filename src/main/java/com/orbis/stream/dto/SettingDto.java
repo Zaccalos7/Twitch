@@ -27,4 +27,6 @@ public class SettingDto {
 
     private Boolean isActive;
 
+    private String channelName;
+
 }
