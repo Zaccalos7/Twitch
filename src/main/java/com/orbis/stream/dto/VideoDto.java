@@ -3,6 +3,8 @@ package com.orbis.stream.dto;
 import com.orbis.stream.enums.LiveStatusEnum;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 
 @Builder
 @Data
@@ -24,4 +26,6 @@ public class VideoDto {
     private String message;
 
     private Boolean shouldBeStop;
+
+    private LocalDateTime startDateLive;
 }

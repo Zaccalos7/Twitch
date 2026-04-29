@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -38,6 +39,8 @@ public class Video {
 
     @ColumnDefault("false")
     private Boolean shouldBeStop;
+
+    private LocalDateTime startDateLive;
 
     @ManyToOne
     private VideoLiveHistory videoLiveHistory;

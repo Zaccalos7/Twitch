@@ -3,6 +3,8 @@ package com.orbis.stream.record;
 import com.orbis.stream.enums.LiveStatusEnum;
 import lombok.Builder;
 
+import java.time.LocalDateTime;
+
 @Builder
 public record VideoRecord(
         Integer pkid,
@@ -14,6 +16,7 @@ public record VideoRecord(
         String message,
         VideoLiveHistoryRecord videoLiveHistory,
         VideoSettingsRecord videoSetting,
-        Boolean shouldBeStop
+        Boolean shouldBeStop,
+        LocalDateTime startDateLive
 ) {
 }
