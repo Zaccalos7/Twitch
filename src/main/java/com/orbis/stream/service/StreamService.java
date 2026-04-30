@@ -2,6 +2,7 @@ package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.enums.*;
+import com.orbis.stream.exceptions.FileReadingException;
 import com.orbis.stream.exceptions.LiveException;
 import com.orbis.stream.exceptions.NotFoundCustomException;
 import com.orbis.stream.handler.ResponseHandler;
@@ -26,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -135,12 +137,14 @@ public class StreamService {
     public ResponseEntity<Map<String, String>> startLive(StartLiveRecord startLiveRecord){
 
         String channelName = startLiveRecord.channelName();
-        checkIfALiveAlreadyStreamingForAChannel(channelName);
+        String platformStreamName = startLiveRecord.platformStreamName();
+
+        checkIfALiveAlreadyStreamingForAChannel(channelName, platformStreamName);
 
         String videoPathFolder = startLiveRecord.videoPath();
         String streamKey = startLiveRecord.streamKey();
         String streamUrl = startLiveRecord.streamUrl();
-        String platformStreamName = startLiveRecord.platformStreamName();
+
 
         LocalDateTime timeStartLive = LocalDateTime.now();
         saveVideoLiveHistory(videoPathFolder, timeStartLive, streamUrl, streamKey, platformStreamName);
@@ -161,13 +165,28 @@ public class StreamService {
     }
 
     @Transactional(readOnly = true)
-    private void checkIfALiveAlreadyStreamingForAChannel(String channelName) {
+    private void checkIfALiveAlreadyStreamingForAChannel(String channelName, String platformStreamName) {
         List<Video> videoList = videoRepository
                 .findByLiveStatusAndChannelName(LiveStatusEnum.LIVE, channelName);
 
         if (videoList.isEmpty()) {
             return;
         }
+
+        List<Video> videoListParsed = videoList.stream()
+                .filter((video)-> {
+                    boolean isCorrectedPlatform = video
+                            .getVideoLiveHistory()
+                            .getPlatformStreamName()
+                            .equalsIgnoreCase(platformStreamName);
+                    return isCorrectedPlatform;
+                })
+                .toList();
+
+        if (videoListParsed.isEmpty()) {
+            return;
+        }
+
         throw new LiveException("channel.has.already.a.live.active");
     }
 
@@ -420,6 +439,9 @@ public class StreamService {
         }
 
         String[] files = fileName.split("\\.");
+
+        if(files.length < 1 )
+            throw new FileReadingException("video.not.valid", new Object[]{fileName});
 
         String extension = files[1];
 
