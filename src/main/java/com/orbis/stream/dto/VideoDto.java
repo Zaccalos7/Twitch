@@ -28,4 +28,6 @@ public class VideoDto {
     private Boolean shouldBeStop;
 
     private LocalDateTime startDateLive;
+
+    private String channelName;
 }

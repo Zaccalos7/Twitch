@@ -17,6 +17,7 @@ public record VideoRecord(
         VideoLiveHistoryRecord videoLiveHistory,
         VideoSettingsRecord videoSetting,
         Boolean shouldBeStop,
-        LocalDateTime startDateLive
+        LocalDateTime startDateLive,
+        String channelName
 ) {
 }

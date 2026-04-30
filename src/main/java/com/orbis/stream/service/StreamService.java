@@ -143,11 +143,11 @@ public class StreamService {
         String platformStreamName = startLiveRecord.platformStreamName();
 
         LocalDateTime timeStartLive = LocalDateTime.now();
-        saveVideoLiveHistory(videoPathFolder, timeStartLive, streamUrl, streamKey, platformStreamName, channelName);
+        saveVideoLiveHistory(videoPathFolder, timeStartLive, streamUrl, streamKey, platformStreamName);
 
         VideoLiveHistory videoLiveHistory = retrievedVideoLiveHistorySaved(videoPathFolder, timeStartLive);
 
-        saveVideoPaths(videoPathFolder, videoLiveHistory, startLiveRecord.videoSettingsRecord());
+        saveVideoPaths(videoPathFolder, videoLiveHistory, startLiveRecord.videoSettingsRecord(), channelName);
 
         String streamingUrl;
 
@@ -305,22 +305,20 @@ public class StreamService {
     }
 
     @Transactional
-    private void saveVideoPaths(String videoPathFolder, VideoLiveHistory videoLiveHistory, VideoSettingsRecord videoSettingsRecord) {
+    private void saveVideoPaths(String videoPathFolder, VideoLiveHistory videoLiveHistory, VideoSettingsRecord videoSettingsRecord, String channelName) {
         File videoFile = Paths.get(videoPathFolder).toFile();
 
         VideoSetting videoSetting = videoSettingRecordMapper.toModel(videoSettingsRecord);
 
         if(videoFile.isDirectory()) {
-            saveAllVideoPaths(videoFile, videoLiveHistory, videoSetting);
+            saveAllVideoPaths(videoFile, videoLiveHistory, videoSetting, channelName);
         }else{
-            saveOneVideoPaths(videoFile, videoLiveHistory, videoSetting);
+            saveOneVideoPaths(videoFile, videoLiveHistory, videoSetting, channelName);
         }
     }
 
    
-    private void saveAllVideoPaths(File videoFile, VideoLiveHistory videoLiveHistory, VideoSetting videoSetting){
-
-
+    private void saveAllVideoPaths(File videoFile, VideoLiveHistory videoLiveHistory, VideoSetting videoSetting, String channelName){
 
         File[] videoList = videoFile.listFiles(pathname -> {
             if(pathname.isDirectory()){
@@ -355,6 +353,7 @@ public class StreamService {
                     .videoSetting(videoSetting)
                     .shouldBeStop(false)
                     .startDateLive(LocalDateTime.now())
+                    .channelName(channelName)
                     .build();
             saveOnModelVideo(video);
         }
@@ -375,8 +374,8 @@ public class StreamService {
                                       LocalDateTime zoneIdTime,
                                       String streamUrl,
                                       String streamKey,
-                                      String platformStreamingName,
-                                      String channelName) {
+                                      String platformStreamingName
+                                      ) {
         VideoLiveHistory videoLiveHistory = VideoLiveHistory
                 .builder()
                 .userName("Mario")
@@ -390,7 +389,7 @@ public class StreamService {
         videoLiveHistoryRepository.save(videoLiveHistory);
     }
 
-    private void saveOneVideoPaths(File videoFile, VideoLiveHistory videoLiveHistory, VideoSetting videoSetting){
+    private void saveOneVideoPaths(File videoFile, VideoLiveHistory videoLiveHistory, VideoSetting videoSetting, String channelName){
        
 
         Video video = Video
@@ -404,6 +403,7 @@ public class StreamService {
                 .videoSetting(videoSetting)
                 .shouldBeStop(false)
                 .startDateLive(LocalDateTime.now())
+                .channelName(channelName)
                 .build();
         saveOnModelVideo(video);
 
