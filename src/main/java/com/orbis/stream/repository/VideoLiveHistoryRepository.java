@@ -6,9 +6,11 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
 public interface VideoLiveHistoryRepository extends JpaRepository<VideoLiveHistory, Long> {
     Optional<VideoLiveHistory> findByFolderOfVideoToStreamAndLocalDateTimeStartLive(String folder, LocalDateTime startLiveDate);
+
 }

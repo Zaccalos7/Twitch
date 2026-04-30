@@ -1,5 +1,6 @@
 package com.orbis.stream.repository;
 
+import com.orbis.stream.enums.LiveStatusEnum;
 import com.orbis.stream.model.Video;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -12,5 +13,6 @@ import java.util.Optional;
 public interface VideoRepository extends JpaRepository<Video, Integer>, JpaSpecificationExecutor<Video> {
     Optional<List<Video>> findByVideoLiveHistory_pkid(Long pkid);
     Video findByVideoPathAndVideoLiveHistory_pkid(String videoPath, Long pkid);
+    List<Video> findByLiveStatusAndChannelName(LiveStatusEnum liveStatus, String channelName);
     Video findByPkid(Integer pkid);
 }

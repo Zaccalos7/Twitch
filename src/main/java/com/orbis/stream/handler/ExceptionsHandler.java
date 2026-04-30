@@ -1,10 +1,7 @@
 package com.orbis.stream.handler;
 
 
-import com.orbis.stream.exceptions.DuplicationEntityException;
-import com.orbis.stream.exceptions.FileReadingException;
-import com.orbis.stream.exceptions.NotFoundCustomException;
-import com.orbis.stream.exceptions.StreamingException;
+import com.orbis.stream.exceptions.*;
 import org.springframework.context.MessageSource;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.http.HttpStatus;
@@ -96,6 +93,13 @@ public class ExceptionsHandler {
         return errorResponse;
     }
 
+    @ExceptionHandler(LiveException.class)
+    public ResponseEntity<Map<String, String>> handleException(LiveException ex){
+        ResponseEntity<Map<String, String>> errorResponse;
 
+        String errorCodeMessage = ex.getLocalizedMessage();
+        errorResponse = responseHandler.buildBadResponse(errorCodeMessage, HttpStatus.CONFLICT);
+        return errorResponse;
+    }
 
 }

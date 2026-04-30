@@ -2,6 +2,7 @@ package com.orbis.stream.service;
 
 import com.orbis.stream.component.LoggerMessageComponent;
 import com.orbis.stream.enums.*;
+import com.orbis.stream.exceptions.LiveException;
 import com.orbis.stream.exceptions.NotFoundCustomException;
 import com.orbis.stream.handler.ResponseHandler;
 import com.orbis.stream.mapping.mapperRECORD.VideoSettingRecordMapper;
@@ -133,13 +134,16 @@ public class StreamService {
 
     public ResponseEntity<Map<String, String>> startLive(StartLiveRecord startLiveRecord){
 
+        String channelName = startLiveRecord.channelName();
+        checkIfALiveAlreadyStreamingForAChannel(channelName);
+
         String videoPathFolder = startLiveRecord.videoPath();
         String streamKey = startLiveRecord.streamKey();
         String streamUrl = startLiveRecord.streamUrl();
         String platformStreamName = startLiveRecord.platformStreamName();
 
         LocalDateTime timeStartLive = LocalDateTime.now();
-        saveVideoLiveHistory(videoPathFolder, timeStartLive, streamKey, streamUrl, platformStreamName);
+        saveVideoLiveHistory(videoPathFolder, timeStartLive, streamUrl, streamKey, platformStreamName, channelName);
 
         VideoLiveHistory videoLiveHistory = retrievedVideoLiveHistorySaved(videoPathFolder, timeStartLive);
 
@@ -154,6 +158,17 @@ public class StreamService {
         }
 
         return streamingVideo(videoLiveHistory, streamingUrl);
+    }
+
+    @Transactional(readOnly = true)
+    private void checkIfALiveAlreadyStreamingForAChannel(String channelName) {
+        List<Video> videoList = videoRepository
+                .findByLiveStatusAndChannelName(LiveStatusEnum.LIVE, channelName);
+
+        if (videoList.isEmpty()) {
+            return;
+        }
+        throw new LiveException("channel.has.already.a.live.active");
     }
 
     private ResponseEntity<Map<String, String>> streamingVideo(VideoLiveHistory videoLiveHistory, String streamingUrl) {
@@ -356,7 +371,12 @@ public class StreamService {
 
     // for now user is always Mario
     @Transactional
-    private void saveVideoLiveHistory(String videoFileAbsolutePath, LocalDateTime zoneIdTime, String streamUrl, String streamKey, String platformStreamingName) {
+    private void saveVideoLiveHistory(String videoFileAbsolutePath,
+                                      LocalDateTime zoneIdTime,
+                                      String streamUrl,
+                                      String streamKey,
+                                      String platformStreamingName,
+                                      String channelName) {
         VideoLiveHistory videoLiveHistory = VideoLiveHistory
                 .builder()
                 .userName("Mario")

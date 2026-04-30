@@ -42,6 +42,10 @@ public class Video {
 
     private LocalDateTime startDateLive;
 
+    @Column(nullable = false, length = 512)
+    @ColumnDefault("Zingy")
+    private String channelName;
+
     @ManyToOne
     private VideoLiveHistory videoLiveHistory;
 

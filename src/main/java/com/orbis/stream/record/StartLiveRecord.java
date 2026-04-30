@@ -11,6 +11,8 @@ public record StartLiveRecord(
         String videoPath,
         @NotNull(message = "input.not.valid")
         String platformStreamName,
+        @NotNull(message = "input.not.valid")
+        String channelName,
         VideoSettingsRecord videoSettingsRecord
 ) {
 }
