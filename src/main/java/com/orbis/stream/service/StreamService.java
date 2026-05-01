@@ -6,12 +6,16 @@ import com.orbis.stream.exceptions.FileReadingException;
 import com.orbis.stream.exceptions.LiveException;
 import com.orbis.stream.exceptions.NotFoundCustomException;
 import com.orbis.stream.handler.ResponseHandler;
+import com.orbis.stream.mapping.mapperGeneric.FromVideoRecordToStartLiveRecordMapper;
+import com.orbis.stream.mapping.mapperRECORD.VideoLiveHistoryRecordMapper;
 import com.orbis.stream.mapping.mapperRECORD.VideoSettingRecordMapper;
 import com.orbis.stream.model.Video;
 import com.orbis.stream.model.VideoLiveHistory;
 import com.orbis.stream.model.VideoSetting;
 import com.orbis.stream.model.VideoSettingsOption;
 import com.orbis.stream.record.StartLiveRecord;
+import com.orbis.stream.record.VideoLiveHistoryRecord;
+import com.orbis.stream.record.VideoRecord;
 import com.orbis.stream.record.VideoSettingsRecord;
 import com.orbis.stream.repository.VideoLiveHistoryRepository;
 import com.orbis.stream.repository.VideoRepository;
@@ -27,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -54,6 +57,8 @@ public class StreamService {
     private final LoggerMessageComponent loggerMessageComponent;
 
     private final VideoSettingRecordMapper videoSettingRecordMapper;
+    private final FromVideoRecordToStartLiveRecordMapper fromVideoRecordToStartLiveRecordMapper;
+    private final VideoLiveHistoryRecordMapper videoLiveHistoryRecordMapper;
 
     private final VideoRepository videoRepository;
     private final VideoLiveHistoryRepository videoLiveHistoryRepository;
@@ -165,7 +170,7 @@ public class StreamService {
     }
 
     @Transactional(readOnly = true)
-    private void checkIfALiveAlreadyStreamingForAChannel(String channelName, String platformStreamName) {
+    protected void checkIfALiveAlreadyStreamingForAChannel(String channelName, String platformStreamName) {
         List<Video> videoList = videoRepository
                 .findByLiveStatusAndChannelName(LiveStatusEnum.LIVE, channelName);
 
@@ -211,6 +216,7 @@ public class StreamService {
     @Transactional
     private List<Video> findAllVideoToStreamOnDirectory(Long videoLiveHistoryId) {
         return videoRepository.findByVideoLiveHistory_pkid(videoLiveHistoryId)
+                .filter(videos -> !videos.isEmpty())
                 .orElseThrow(()-> {
                     log.error("video.streaming.not.found");
                     return new NotFoundCustomException("video.streaming.not.found");
@@ -224,6 +230,7 @@ public class StreamService {
                                      Integer videoKey
                                      ){
         try {
+            org.hibernate.Hibernate.initialize(videoSetting.getVideoSettingsOptions());
             FFmpegFrameGrabber grabber = new FFmpegFrameGrabber(inputPath);
             grabber.start();
 
@@ -252,7 +259,8 @@ public class StreamService {
 
             recorder.start();
             log.info(loggerMessageComponent.printMessage("video.live.started", new Object[]{inputPath}));
-            saveMessageOnVideoLiveHistory(loggerMessageComponent.printMessage("video.live.started", new Object[]{inputPath}), videoLiveHistoryId, inputPath, "LIVE");
+            LocalDateTime dateTime = LocalDateTime.now();
+            saveMessageOnVideoLiveHistory(loggerMessageComponent.printMessage("video.live.started", new Object[]{inputPath}), videoLiveHistoryId, inputPath, "LIVE", dateTime);
 
             try {
                 Frame frame;
@@ -269,7 +277,7 @@ public class StreamService {
                         recorder.stop();
                         String message = loggerMessageComponent.printMessage("live.stopped");
                         log.info(message);
-                        saveMessageOnVideoLiveHistory(message, videoLiveHistoryId, inputPath, "STOPPED");
+                        saveMessageOnVideoLiveHistory(message, videoLiveHistoryId, inputPath, "STOPPED", null);
                     }
 
                     //I send video datas faster than platform streaming
@@ -282,14 +290,15 @@ public class StreamService {
                 }
                 String message = loggerMessageComponent.printMessage("video.live.ended");
                 log.info(message);
-                saveMessageOnVideoLiveHistory(message, videoLiveHistoryId, inputPath, "ENDED");
+                saveMessageOnVideoLiveHistory(message, videoLiveHistoryId, inputPath, "ENDED", null);
 
             } catch (Exception e) {
                 String errorMessage = loggerMessageComponent.printMessage("error.during.streaming.video", new Object[]{inputPath})
                         + "\n"
                         + e.getMessage();
                 log.error(errorMessage);
-                saveMessageOnVideoLiveHistory(errorMessage, videoLiveHistoryId, inputPath, "ERROR");
+                dateTime = LocalDateTime.now();
+                saveMessageOnVideoLiveHistory(errorMessage, videoLiveHistoryId, inputPath, "ERROR", dateTime);
             } finally {
                 cleanup(grabber, recorder);
             }
@@ -299,7 +308,8 @@ public class StreamService {
                     + "\n"
                     + e.getMessage();
             log.error(errorMessage);
-            saveMessageOnVideoLiveHistory(errorMessage, videoLiveHistoryId, inputPath, "ERROR");
+            LocalDateTime dateTime = LocalDateTime.now();
+            saveMessageOnVideoLiveHistory(errorMessage, videoLiveHistoryId, inputPath, "ERROR", dateTime);
         }
     }
 
@@ -310,15 +320,18 @@ public class StreamService {
     }
 
     @Transactional
-    private void saveMessageOnVideoLiveHistory(String message, Long videoLiveHistoryId, String inputPath, String statusLive) {
+    private void saveMessageOnVideoLiveHistory(String message, Long videoLiveHistoryId, String inputPath, String statusLive, LocalDateTime dateTime) {
         Video video = videoRepository.findByVideoPathAndVideoLiveHistory_pkid(inputPath, videoLiveHistoryId);
 
         if(video == null){
             log.error(loggerMessageComponent.printMessage("error.during.retrieved.video", new Object[]{inputPath, videoLiveHistoryId}));
             return;
         }
+        if(dateTime != null)
+            video.setStartDateLive(dateTime);
 
         video.setMessage(message);
+
         video.setLiveStatus(LiveStatusEnum.valueOf(statusLive));
         videoRepository.save(video);
     }
@@ -468,5 +481,81 @@ public class StreamService {
     protected void saveFlagToStopLive(Video video){
         videoRepository.save(video);
     }
+
+    public ResponseEntity<Map<String, String>> startVideo(VideoRecord videoRecord){
+        VideoLiveHistoryRecord videoLiveHistoryPkid = videoRecord.videoLiveHistory();
+        StartLiveRecord startLiveRecord = fromVideoRecordToStartLiveRecordMapper.toStartLiveRecord(videoRecord);
+        return startLiveWithoutSaveOnModel(startLiveRecord, videoLiveHistoryPkid);
+    }
+
+    /*
+    / this method is used for play o restart a single video , with video options
+      and video details already saved on db
+     */
+    private ResponseEntity<Map<String, String>> startLiveWithoutSaveOnModel(StartLiveRecord startLiveRecord, VideoLiveHistoryRecord videoLiveHistoryRecord){
+
+        String channelName = startLiveRecord.channelName();
+        String platformStreamName = startLiveRecord.platformStreamName();
+        stopLives(channelName, platformStreamName);
+
+        checkIfALiveAlreadyStreamingForAChannel(channelName, platformStreamName);
+
+        String videoPathFolder = startLiveRecord.videoPath();
+        String streamKey = startLiveRecord.streamKey();
+        String streamUrl = startLiveRecord.streamUrl();
+
+
+        LocalDateTime timeStartLive = LocalDateTime.now();
+        saveVideoLiveHistory(videoPathFolder, timeStartLive, streamUrl, streamKey, platformStreamName);
+
+        VideoLiveHistory videoLiveHistory = videoLiveHistoryRecordMapper.toModel(videoLiveHistoryRecord);
+
+        String streamingUrl;
+
+        if(streamUrl.endsWith("/")){
+            streamingUrl =  streamUrl.concat(streamKey);
+        }else{
+            streamingUrl =  streamUrl.concat("/").concat(streamKey);
+        }
+
+        return streamingVideo(videoLiveHistory, streamingUrl);
+    }
+
+
+    public void stopLives(String channelName, String platformStream) {
+
+        var videoToStoppedList = getAllVideoLiveForChannelNameAndPlatformName(channelName, platformStream);
+        if(videoToStoppedList == null || videoToStoppedList.isEmpty())
+            return;
+        videoToStoppedList.forEach(this::saveFlagToStopLive);
+
+    }
+
+    @Transactional(readOnly = true)
+    protected List<Video> getAllVideoLiveForChannelNameAndPlatformName(String channelName, String platformStreamName) {
+        List<Video> videoList = videoRepository
+                .findByLiveStatusAndChannelName(LiveStatusEnum.LIVE, channelName);
+
+        if (videoList.isEmpty()) {
+            return null;
+        }
+
+        List<Video> videoListParsed = videoList.stream()
+                .filter((video)-> {
+                    boolean isCorrectedPlatform = video
+                            .getVideoLiveHistory()
+                            .getPlatformStreamName()
+                            .equalsIgnoreCase(platformStreamName);
+                    return isCorrectedPlatform;
+                })
+                .toList();
+
+        if (videoListParsed.isEmpty()) {
+            return null;
+        }
+
+        return videoListParsed;
+    }
+
 }
 
