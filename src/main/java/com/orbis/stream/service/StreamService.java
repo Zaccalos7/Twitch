@@ -266,13 +266,18 @@ public class StreamService {
             try {
                 Frame frame;
                 long startTime = System.currentTimeMillis();
-                boolean shouldBeStopped;
+                boolean shouldBeStopped = false;
+                int frameCounter = 0;
 
                 while ((frame = grabber.grab()) != null) {
                     long timestamp = grabber.getTimestamp();
                     long timePassed = (System.currentTimeMillis() - startTime) * 1000;
 
-                    shouldBeStopped = checkIfFlagStopExists(videoKey);
+                    //i check each 1.5 seconds at 30 fps
+                    if (frameCounter % 50 == 0) {
+                        shouldBeStopped = checkIfFlagStopExists(videoKey);
+                    }
+                    frameCounter++;
 
                     if(shouldBeStopped){
                         recorder.stop();
