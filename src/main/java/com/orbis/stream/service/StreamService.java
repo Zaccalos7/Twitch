@@ -35,6 +35,7 @@ import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /*
 Pacing in tempo reale: Il blocco Thread.sleep calcola la differenza tra il timestamp del video e il tempo effettivo trascorso dall'inizio del programma. Questo frena l'invio dei pacchetti in modo che venga riprodotto a velocità normale.
@@ -514,21 +515,28 @@ public class StreamService {
 
         String channelName = startLiveRecord.channelName();
         String platformStreamName = startLiveRecord.platformStreamName();
-        stopLives(channelName, platformStreamName);
-
-        int maxRetries = 20;
-        while (maxRetries > 0) {
-            List<Video> previousVideos = getAllVideoLiveForChannelNameAndPlatformName(channelName, platformStreamName);
-            if (previousVideos == null || previousVideos.isEmpty()) {
-                break;
-            }
-            try {
-                Thread.sleep(500);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            maxRetries--;
-        }
+        checkIfALiveAlreadyStreamingForAChannel(channelName, platformStreamName);
+//        List<Video> videoToStopList = stopLives(channelName, platformStreamName);
+//
+//        int maxRetries = 20;
+//        while (maxRetries > 0) {
+//
+//            if (videoToStopList == null || videoToStopList.isEmpty()) {
+//                break;
+//            }
+//
+//            boolean isAllOffline = videoToStopList.stream()
+//                    .noneMatch((video)-> Objects.equals(video.getLiveStatus().getValue(), "LIVE"));
+//
+//           if(isAllOffline)
+//               break;
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                Thread.currentThread().interrupt();
+//            }
+//            maxRetries--;
+//        }
 
         String videoPathFolder = startLiveRecord.videoPath();
         String streamKey = startLiveRecord.streamKey();
@@ -551,14 +559,15 @@ public class StreamService {
         return streamingVideo(videoLiveHistory, streamingUrl);
     }
 
-
-    public void stopLives(String channelName, String platformStream) {
+    //to_DO see if if possible
+    public List<Video> stopLives(String channelName, String platformStream) {
 
         var videoToStoppedList = getAllVideoLiveForChannelNameAndPlatformName(channelName, platformStream);
         if(videoToStoppedList == null || videoToStoppedList.isEmpty())
-            return;
+            return null;
         videoToStoppedList.forEach(this::saveFlagToStopLive);
 
+        return videoToStoppedList;
     }
 
     @Transactional(readOnly = true)
