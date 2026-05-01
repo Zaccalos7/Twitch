@@ -238,6 +238,7 @@ public class StreamService {
             int height = grabber.getImageHeight();
             int audioChannels = grabber.getAudioChannels();
             double fps = grabber.getFrameRate();
+            boolean skipIsLiveEnded = false;
 
             FFmpegFrameRecorder recorder = new FFmpegFrameRecorder(twitchUrl, width, height, audioChannels);
             recorder.setFormat(videoSetting.getVideoFormat());
@@ -277,7 +278,10 @@ public class StreamService {
                         recorder.stop();
                         String message = loggerMessageComponent.printMessage("live.stopped");
                         log.info(message);
+                        resetFlag(videoKey);
                         saveMessageOnVideoLiveHistory(message, videoLiveHistoryId, inputPath, "STOPPED", null);
+                        skipIsLiveEnded = true;
+                        break;
                     }
 
                     //I send video datas faster than platform streaming
@@ -288,9 +292,12 @@ public class StreamService {
                     recorder.setTimestamp(timestamp);
                     recorder.record(frame);
                 }
-                String message = loggerMessageComponent.printMessage("video.live.ended");
-                log.info(message);
-                saveMessageOnVideoLiveHistory(message, videoLiveHistoryId, inputPath, "ENDED", null);
+
+                if(!skipIsLiveEnded){
+                    String message = loggerMessageComponent.printMessage("video.live.ended");
+                    log.info(message);
+                    saveMessageOnVideoLiveHistory(message, videoLiveHistoryId, inputPath, "ENDED", null);
+                }
 
             } catch (Exception e) {
                 String errorMessage = loggerMessageComponent.printMessage("error.during.streaming.video", new Object[]{inputPath})
@@ -467,6 +474,12 @@ public class StreamService {
         saveFlagToStopLive(video);
     }
 
+    public void resetFlag(Integer videoLivePkid) {
+        Video video = checkIfExistsAndReturnEntity(videoLivePkid);
+        video.setShouldBeStop(false);
+        saveFlagToStopLive(video);
+    }
+
     @Transactional(readOnly = true)
     protected Video checkIfExistsAndReturnEntity(Integer pkid){
         Video video =  videoRepository.findByPkid(pkid);
@@ -498,7 +511,19 @@ public class StreamService {
         String platformStreamName = startLiveRecord.platformStreamName();
         stopLives(channelName, platformStreamName);
 
-        checkIfALiveAlreadyStreamingForAChannel(channelName, platformStreamName);
+        int maxRetries = 20;
+        while (maxRetries > 0) {
+            List<Video> previousVideos = getAllVideoLiveForChannelNameAndPlatformName(channelName, platformStreamName);
+            if (previousVideos == null || previousVideos.isEmpty()) {
+                break;
+            }
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            maxRetries--;
+        }
 
         String videoPathFolder = startLiveRecord.videoPath();
         String streamKey = startLiveRecord.streamKey();
