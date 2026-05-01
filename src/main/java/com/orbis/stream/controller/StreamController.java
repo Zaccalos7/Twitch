@@ -2,11 +2,14 @@ package com.orbis.stream.controller;
 
 
 import com.orbis.stream.component.LoggerMessageComponent;
+import com.orbis.stream.dto.VideoDto;
 import com.orbis.stream.handler.ResponseHandler;
 import com.orbis.stream.record.StartLiveRecord;
+import com.orbis.stream.record.VideoRecord;
 import com.orbis.stream.service.StreamService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -46,6 +49,16 @@ public class StreamController {
        streamService.stopVideoStreamingByPkid(videoLivePkid);
        log.info(loggerMessageComponent.printMessage("live.stopped"));
        return responseHandler.buildResponse("live.stopped", HttpStatus.OK);
+    }
+
+    @PostMapping("/start-video-live")
+    @Operation(summary = "Endpoint per lo stop delle live del canale attive",
+            description = "Restituisce l'esito dell'operazione")
+    public ResponseEntity<Map<String,String>> startVideoLive(@NotNull(message = "input.not.valid") @RequestBody VideoRecord videoRecord) {
+
+        var response = streamService.startVideo(videoRecord);
+        log.info(loggerMessageComponent.printMessage("live.started"));
+        return response;
     }
 
 }
