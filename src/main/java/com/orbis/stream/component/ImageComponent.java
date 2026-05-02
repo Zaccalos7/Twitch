@@ -27,7 +27,7 @@ public class ImageComponent {
     private final LoggerMessageComponent loggerMessageComponent;
     private final ResponseHandler responseHandler;
 
-    private static final String UPLOAD_DIR = "images";
+    private static final String UPLOAD_DIR = "src/main/resources/images";
     private static final String IMAGE_NAME= "HOME";
 
     public ResponseEntity<Map<String, String>> saveImage(MultipartFile image){
@@ -69,7 +69,7 @@ public class ImageComponent {
     }
 
     public ImageUtilities loadImage() {
-        File folder = new File("images");
+        File folder = new File(UPLOAD_DIR);
         if(!folder.isDirectory() || !folder.exists()){
             log.error(loggerMessageComponent.printMessage("folder.not.found"));
             throw new FileReadingException("folder.not.found");
