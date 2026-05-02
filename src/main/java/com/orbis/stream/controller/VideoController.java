@@ -34,7 +34,7 @@ public class VideoController {
     @Operation(summary = "Restituisce tutti i video, oppure filtrati")
     @GetMapping("getAllVideo")
     public Page<VideoRecord> getAllVideoList(@RequestParam  Map<String, String> filtersMap,
-                                             @PageableDefault(size = 4, sort = "pkid", direction = Sort.Direction.DESC)
+                                             @PageableDefault(size = 4, sort = "startDateLive", direction = Sort.Direction.DESC)
                                           Pageable pageable){
         filtersMap.remove("page");
         filtersMap.remove("size");
