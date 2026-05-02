@@ -27,7 +27,7 @@ public class ImageComponent {
     private final LoggerMessageComponent loggerMessageComponent;
     private final ResponseHandler responseHandler;
 
-    private static final String UPLOAD_DIR = "src/main/resources/images";
+    private static final String UPLOAD_DIR = "images";
     private static final String IMAGE_NAME= "HOME";
 
     public ResponseEntity<Map<String, String>> saveImage(MultipartFile image){
@@ -56,8 +56,10 @@ public class ImageComponent {
             //delete previous image, maybe the dot of image change and when i replace i didn't delete or
             //retrieve the correct image
             var previousImage = loadImage();
-            Path pathOfPreviousImage  = previousImage.getResource().getFile().toPath();
-            Files.deleteIfExists(pathOfPreviousImage);
+            if(previousImage != null){
+                Path pathOfPreviousImage  = previousImage.getResource().getFile().toPath();
+                Files.deleteIfExists(pathOfPreviousImage);
+            }
 
             Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
@@ -70,7 +72,7 @@ public class ImageComponent {
 
     public ImageUtilities loadImage() {
         File folder = new File(UPLOAD_DIR);
-        if(!folder.isDirectory() || !folder.exists()){
+        if(!folder.isDirectory() || !folder.exists() ){
             log.error(loggerMessageComponent.printMessage("folder.not.found"));
             throw new FileReadingException("folder.not.found");
         }
@@ -81,8 +83,7 @@ public class ImageComponent {
         File[] files = folder.listFiles();
 
         if (files == null || files.length == 0) {
-            log.error(loggerMessageComponent.printMessage("file.not.found"));
-            throw new FileReadingException("file.not.found");
+            return null;
         }
         File file = files[0];
 
